@@ -1,32 +1,26 @@
 team_name = "6g"
-
 team_members = [
-
-    "Lucian Pucelak",
-
+    "Lucjan Pucelak",
     "Szymon Lisowski",
-
-    "Efran Fernandz",
-    
-    "Oskar Nowakowski"
-
-]
+    "Efran Fernandez",
+    "Oskar Nowakowski"]
 
 
-print("=" * 40)
+def count_team_members(team_members):
+    return len(team_members)
 
-print(f"Team Name: {team_name}")
+def display_team_members(team_members):
+    print("=" * 40)
+    print(f"Team Name: {team_name}")
+    print("=" * 40)
+    print("\nTeam Members:")
+    for i, member in enumerate(team_members, start=1):
+        print(f"  {i}. {member}")
 
-print("=" * 40)
+    print("\nProject is running correctly!")
+    print("=" * 40)
 
 
-print("\nTeam Members:")
 
-for i, member in enumerate(team_members, start=1):
-
-    print(f"  {i}. {member}")
-
-
-print("\n Project is running correctly!")
-
-print("=" * 40)
+if __name__ == '__main__':
+    display_team_members(team_members)

@@ -47,10 +47,10 @@ and the development of a simple Python program as a team.
 ## Team work summary
 
 ### Who was responsible for what
-- Lucjan Pucelak – README updates, tests, pull requests
+- Lucjan Pucelak – repository setup, README updates, tests
 - Efran Fernandez Fernandez – program development and functions
-- Szymon Lisowski – repository setup and project structure
-- Oskar Nowakowski – documentation, review, and support with testing
+- Szymon Lisowski – repository managing, code review, maintenance, refactoring
+- Oskar Nowakowski – project structure setup, code development support, tests
 
 ### Problems we encountered
 - GitHub authentication and pushing changes from local branches
@@ -64,4 +64,6 @@ and the development of a simple Python program as a team.
 - how to prepare simple tests for Python functions
 - how to use GitHub Issues, branches, commits, and pull requests
 - how code review works and why clear branch names and commit messages are important
+- how to resolve merging conflicts
+- how to collaborate and build a project together
 

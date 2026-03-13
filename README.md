@@ -47,7 +47,7 @@ and the development of a simple Python program as a team.
 ## Team work summary
 
 ### Who was responsible for what
-- Lucjan Pucelak – repository setup, README updates, tests
+- Lucjan Pucelak – repository setup, responsibility dividing, documentation,  tests
 - Efran Fernandez Fernandez – program development and functions
 - Szymon Lisowski – repository managing, code review, maintenance, refactoring
 - Oskar Nowakowski – project structure setup, code development support, tests

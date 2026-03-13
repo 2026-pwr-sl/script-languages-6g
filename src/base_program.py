@@ -3,7 +3,8 @@ team_members = [
     "Lucjan Pucelak",
     "Szymon Lisowski",
     "Efran Fernandez",
-    "Oskar Nowakowski"]
+    "Oskar Nowakowski"
+]
 
 
 def count_team_members(team_members):
@@ -11,7 +12,7 @@ def count_team_members(team_members):
 
 
 # This function returns a formatted greeting message for a given name.
-def formatGreeting(name):
+def format_greeting(name):
     return f" Welcome, {name}!"
 
 

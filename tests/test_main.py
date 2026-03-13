@@ -2,7 +2,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from base_program import format_greeting
+from base_program import format_greeting, count_team_members
 
 
 def run_tests():
@@ -15,6 +15,11 @@ def run_tests():
     else:
         print("\nformat_greeting failed.")
 
+    # 2. Normal case for count_team_members
+    if count_team_members(test_members) == 4:
+        print("count_team_members normal case passed.")
+    else:
+        print("count_team_members normal case failed.")
 
 if __name__ == "__main__":
     run_tests()

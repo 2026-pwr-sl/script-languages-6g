@@ -1,7 +1,9 @@
 import sys
 import os
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from base_program import format_greeting, count_team_members
+
 
 def run_tests():
     test_members = ["Lucjan Pucelak", "Szymon Lisowski", "Efran Fernandez", "Oskar Nowakowski"]

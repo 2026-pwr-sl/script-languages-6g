@@ -3,17 +3,18 @@ team_members = [
     "Lucjan Pucelak",
     "Szymon Lisowski",
     "Efran Fernandez",
-    "Oskar Nowakowski"]
+    "Oskar Nowakowski"
+]
 
 
 def count_team_members(team_members):
     return len(team_members)
-  
-  
+
+
 # This function returns a formatted greeting message for a given name.
 def format_greeting(name):
     return f" Welcome, {name}!"
- 
+
 
 def greet_team(team_members):
     print("\nGreetings:")
@@ -32,9 +33,6 @@ def display_team_members(team_members):
     print("\nProject is running correctly!")
     print("=" * 40)
 
-
-
-print("\n Project is running correctly!")
 
 if __name__ == '__main__':
     display_team_members(team_members)

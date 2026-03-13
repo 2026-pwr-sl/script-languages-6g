@@ -10,8 +10,13 @@ def count_team_members(team_members):
     return len(team_members)
   
 # This function returns a formatted greeting message for a given name.
-def formatGreeting(name):
+def format_greeting(name):
     return f" Welcome, {name}!"
+
+def greet_team(team_members):
+    print("\nGreetings:")
+    for member in team_members:
+        print(format_greeting(member))
  
 def display_team_members(team_members):
     print("=" * 40)
@@ -20,19 +25,10 @@ def display_team_members(team_members):
     print("\nTeam Members:")
     for i, member in enumerate(team_members, start=1):
         print(f"  {i}. {member}")
-
+    print(f"\nNumber of members: {count_team_members(team_members)}")
+    greet_team(team_members)
     print("\nProject is running correctly!")
     print("=" * 40)
-
-
-print("\nGreetings:")
-
-for member in team_members:
-
-    print(formatGreeting(member))
-
-
-print("\n Project is running correctly!")
 
 if __name__ == '__main__':
     display_team_members(team_members)

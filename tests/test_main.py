@@ -1,7 +1,9 @@
 import sys
 import os
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from base_program import format_greeting
+
 
 def run_tests():
     test_members = ["Lucjan Pucelak", "Szymon Lisowski", "Efran Fernandez", "Oskar Nowakowski"]
@@ -12,6 +14,7 @@ def run_tests():
         print("\nformat_greeting passed.")
     else:
         print("\nformat_greeting failed.")
+
 
 if __name__ == "__main__":
     run_tests()

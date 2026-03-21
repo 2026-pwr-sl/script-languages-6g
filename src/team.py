@@ -1,24 +1,25 @@
-team_data = {
-    "team_name": "6g",
-    "members": [
-        {"name": "Lucian Pucelak"},
-        {"name": "Szymon Lisowski"},
-        {"name": "Efran Fernandz"},
-        {"name": "Oskar Nowakowski"}
-    ]
-}
+team_name = "6g"
+
+team_members = [
+    "Lucjan Pucelak",
+    "Szymon Lisowski",
+    "Efran Fernandez",
+    "Oskar Nowakowski"
+]
 
 
-def count_team_members(team):
-    return len(team["members"])
+def count_team_members(team_members):
+    return len(team_members)
 
 
-def add_member(team, name):
-    team["members"].append({"name": name})
+def display_team_members(team_members):
+    print("=" * 40)
+    print(f"Team Name: {team_name}")
+    print("=" * 40)
+    print("\nTeam Members:")
 
+    for i, member in enumerate(team_members, start=1):
+        print(f"  {i}. {member}")
 
-def search_member(team, name):
-    for member in team["members"]:
-        if member["name"] == name:
-            return member
-    return None
+    print("\nProject is running correctly!")
+    print("=" * 40)

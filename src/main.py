@@ -1,10 +1,10 @@
-from team import team_data
-from utils import greet_team, display_team_members
+from team import team_members, display_team_members
+from utils import greet_team
 
 
 def main():
-    greet_team(team_data)
-    display_team_members(team_data)
+    display_team_members(team_members)
+    greet_team(team_members)
 
 
 if __name__ == "__main__":

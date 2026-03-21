@@ -1,14 +1,15 @@
-team_name = "6g"
-team_members = [
-    "Lucjan Pucelak",
-    "Szymon Lisowski",
-    "Efran Fernandez",
-    "Oskar Nowakowski"
-]
+team_data = {
+    "team_name": "6g",
+    "members": [
+        {"name": "Lucian Pucelak"},
+        {"name": "Szymon Lisowski"},
+        {"name": "Efran Fernandz"},
+        {"name": "Oskar Nowakowski"}
+    ]
+}
 
-
-def count_team_members(team_members):
-    return len(team_members)
+def count_team_members(team):
+    return len(team["members"])
 
 
 # This function returns a formatted greeting message for a given name.
@@ -16,23 +17,37 @@ def format_greeting(name):
     return f" Welcome, {name}!"
 
 
-def greet_team(team_members):
+def greet_team(team):
     print("\nGreetings:")
-    for member in team_members:
-        print(format_greeting(member))
+    for member in team["members"]:
+        print(format_greeting(member["name"]))
 
 
-def display_team_members(team_members):
+def display_team_members(team):
     print("=" * 40)
-    print(f"Team Name: {team_name}")
+    print(f"Team Name: {team['team_name']}")   
     print("=" * 40)
     print("\nTeam Members:")
-    for i, member in enumerate(team_members, start=1):
-        print(f"  {i}. {member}")
+    for i, member in enumerate(team["members"], start=1):
+        print(f"  {i}. {member['name']}")
 
     print("\nProject is running correctly!")
     print("=" * 40)
 
 
+
+def add_member(team, name):
+    team["members"].append({"name": name})
+
+
+def search_member(team, name):
+    for member in team["members"]:
+        if member["name"] == name:
+            return member
+    return None
+
+
+
+
 if __name__ == '__main__':
-    display_team_members(team_members)
+    display_team_members(team_data)

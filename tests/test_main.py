@@ -6,7 +6,6 @@ from main import format_greeting, count_team_members
 
 
 def run_tests():
-    test_members = ["Lucjan Pucelak", "Szymon Lisowski", "Efran Fernandez", "Oskar Nowakowski"]
 
     # 1 Test for format_greeting function
     greeting = format_greeting("Oskar")
@@ -16,7 +15,7 @@ def run_tests():
         print("\nformat_greeting failed.")
 
     # 2. Normal case for count_team_members
-    if count_team_members(test_members) == 4:
+    if count_team_members(team_data) == 4:
         print("count_team_members normal case passed.")
     else:
         print("count_team_members normal case failed.")

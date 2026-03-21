@@ -36,7 +36,7 @@ and the development of a simple Python program as a team.
 
 3. Run the main program:
    ```bash
-   python3 src/base_program.py
+   python3 src/main.py
    ```
 
 4. Run the tests:

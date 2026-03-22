@@ -7,7 +7,6 @@ from team import count_team_members, team_data
 
 
 def run_tests():
-    test_members = ["Lucjan Pucelak", "Szymon Lisowski", "Efran Fernandez", "Oskar Nowakowski"]
 
     # 1 Test for format_greeting function
     greeting = format_greeting("Oskar")

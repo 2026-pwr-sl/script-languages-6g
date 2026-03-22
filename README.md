@@ -36,7 +36,9 @@ and the development of a simple Python program as a team.
 
 3. Run the main program:
    ```bash
-   python3 src/main.py
+   python3 src/main.py --show-team
+   python3 src/main.py --count
+   python3 src/main.py --greet Efran
    ```
 
 4. Run the tests:
@@ -66,4 +68,3 @@ and the development of a simple Python program as a team.
 - how code review works and why clear branch names and commit messages are important
 - how to resolve merging conflicts
 - how to collaborate and build a project together
-

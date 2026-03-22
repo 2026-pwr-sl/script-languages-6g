@@ -17,7 +17,7 @@ def run_tests():
         print("\nformat_greeting failed.")
 
     # 2. Normal case for count_team_members
-    if count_team_members(test_members) == 4:
+    if count_team_members(team_data) == 4:
         print("count_team_members normal case passed.")
     else:
         print("count_team_members normal case failed.")

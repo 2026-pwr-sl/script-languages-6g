@@ -2,7 +2,8 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from main import format_greeting, count_team_members
+from utils import format_greeting
+from team import count_team_members, team_data
 
 
 def run_tests():

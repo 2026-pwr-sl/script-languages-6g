@@ -1,3 +1,6 @@
+import json
+
+
 team_data = {
     "team_name": "6g",
     "members": [
@@ -22,3 +25,8 @@ def search_member(team, name):
         if member["name"] == name:
             return member
     return None
+
+
+def save_to_json(team, filename):
+    with open(filename, "w") as file:
+        json.dump(team, file, indent=4)

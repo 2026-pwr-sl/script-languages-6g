@@ -1,5 +1,4 @@
 import argparse
-
 from team import count_team_members, team_data
 from utils import display_team_members, format_greeting
 

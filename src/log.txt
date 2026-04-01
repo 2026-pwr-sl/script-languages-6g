@@ -1,0 +1,20 @@
+/index.html 200 1024 12
+/news/index.html 200 2048 18
+/contact.html 200 1536 14
+/api/products 200 4096 25
+/images/logo.png 200 512 3
+
+/delete/product/3 404 0 7
+/admin/panel.html 403 128 5
+/reports/2025/summary.html 404 0 9
+
+/orders/create 201 256 11
+/profile/update 204 0 8
+/feed/ 200 300 4
+/index.php 200 1800 10
+
+/search?q=python 500 0 31
+/login 502 0 16
+/checkout 503 0 28
+/archive/2024/index.html 200 8192 22
+/assets/app.js 200 40960 6

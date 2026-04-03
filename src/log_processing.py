@@ -53,19 +53,10 @@ def display_log(data):
 
 
 def count_failed_requests(data):
-    failed_requests = 0
-
-    for _, status, _, _ in data:
-        if 400 <= status < 600:
-            failed_requests += 1
-            logging.debug(
-                "Counted failed request, status=%d current_total=%d",
-                status,
-                failed_requests,
-            )
-
-    logging.debug("Final failed requests count: %d", failed_requests)
-    return failed_requests
+    total_failed = len(failed_reads(data))
+    
+    logging.debug("Final failed requests count: %d", total_failed)
+    return total_failed
 
 
 def calculate_total_bytes_sent(data):
@@ -137,11 +128,63 @@ def display_statistics(data):
     )
 
 
+def successful_reads(data):
+    success_list = []
+    
+    for entry in data:
+        if 200 <= entry[1] < 300:
+            success_list.append(entry)
+
+    logging.info("Number of successful entries: %d", len(success_list))
+    return success_list
+
+
+def failed_reads(data):
+    failed_400s,failed_500s = [],[]
+
+    for entry in data:
+        if 400 <= entry[1] < 500:
+            failed_400s.append(entry)
+        elif 500 <= entry[1] < 600:
+            failed_500s.append(entry)
+
+    fail_list = failed_400s + failed_500s
+    
+    logging.info("Number of 4xx entries: %d", len(failed_400s))
+    logging.info("Number of 5xx entries: %d", len(failed_500s))
+    
+    return fail_list
+
+
+def html_entries(data):
+    success_list = successful_reads(data)
+    html_list = []
+
+    for entry in success_list:
+        if entry[0].endswith(".html"):
+            html_list.append(entry)
+
+    return html_list
+
+
+def print_html_entries(data):
+    entries = html_entries(data)
+
+    print("HTML entries:")
+    for entry in entries:
+        print(entry)
+
+
 def main():
     lines = sys.stdin.readlines()
     data = read_log(lines)
+
     display_log(data)
     display_statistics(data)
+
+    successful_reads(data)
+    failed_reads(data)
+    print_html_entries(data)
 
 
 if __name__ == "__main__":

@@ -1,36 +1,40 @@
 """
-    VARIABLES:
+VARIABLES:
 
-    - lines - whole input stored as list of strings,
-        so first line from file is lines[0],
-        lines contain special characters like \n, \t, \r
+- lines - whole input stored as list of strings,
+  so first line from file is lines[0],
+  lines contain special characters like \n, \t, \r
 
-    - data - list of tuples, each tuple represents one parsed log entry (one line)
-        (path, status, bytes_sent, processing_time),
-        for example line
-            /index.html 200 1024 12
-        is parsed into
-            (/index.html, 200, 1024, 12)
+- data - list of tuples, each tuple represents one parsed log entry (one line)
+  (path, status, bytes_sent, processing_time),
+  for example line
+  /index.html 200 1024 12
 
+  is parsed into
+  (/index.html, 200, 1024, 12)
 """
 
 import logging
 import sys
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-# Parse lines into list of (path, status, bytes_sent, processing_time)
+
 def read_log(lines):
+    """Parse lines into a list of (path, status, bytes_sent, processing_time)."""
     logging.debug("Read %d raw lines from stdin", len(lines))
 
     result = []
+
     for line in lines:
-        field = line.strip().split()
-        if len(field) == 4:  # log entry must have 4 fields to be parsed
+        fields = line.strip().split()
+
+        if len(fields) == 4:  # log entry must have 4 fields to be parsed
             entry = (
-                field[0],
-                int(field[1]),
-                int(field[2]),
-                int(field[3])
+                fields[0],
+                int(fields[1]),
+                int(fields[2]),
+                int(fields[3]),
             )
             result.append(entry)
             logging.debug("Parsed line: %s", entry)
@@ -41,8 +45,8 @@ def read_log(lines):
     return result
 
 
-# Print paths from log entries, prefixing failed reads with !
 def display_log(data):
+    """Print paths from log entries, prefixing failed reads with !."""
     logging.debug("Displaying %d log entries", len(data))
 
     for path, status, _, _ in data:
@@ -52,14 +56,46 @@ def display_log(data):
             print(path)
 
 
+def successful_reads(data):
+    """Return entries with HTTP status 2xx."""
+    success_list = []
+
+    for entry in data:
+        if 200 <= entry[1] < 300:
+            success_list.append(entry)
+
+    logging.info("Number of successful entries: %d", len(success_list))
+    return success_list
+
+
+def failed_reads(data):
+    """Return merged list of entries with HTTP status 4xx and 5xx."""
+    failed_400s = []
+    failed_500s = []
+
+    for entry in data:
+        if 400 <= entry[1] < 500:
+            failed_400s.append(entry)
+        elif 500 <= entry[1] < 600:
+            failed_500s.append(entry)
+
+    fail_list = failed_400s + failed_500s
+
+    logging.info("Number of 4xx entries: %d", len(failed_400s))
+    logging.info("Number of 5xx entries: %d", len(failed_500s))
+
+    return fail_list
+
+
 def count_failed_requests(data):
+    """Return number of failed requests."""
     total_failed = len(failed_reads(data))
-    
     logging.debug("Final failed requests count: %d", total_failed)
     return total_failed
 
 
 def calculate_total_bytes_sent(data):
+    """Return total bytes sent to the user."""
     total_bytes = 0
 
     for path, _, bytes_sent, _ in data:
@@ -76,6 +112,7 @@ def calculate_total_bytes_sent(data):
 
 
 def convert_bytes_to_kilobytes(total_bytes):
+    """Convert bytes to kilobytes."""
     total_kilobytes = total_bytes / 1024
     logging.debug(
         "Converted bytes to kilobytes, bytes=%d kilobytes=%.2f",
@@ -86,10 +123,9 @@ def convert_bytes_to_kilobytes(total_bytes):
 
 
 def calculate_average_processing_time(data):
+    """Return average processing time in ms."""
     if not data:
-        logging.debug(
-            "Average processing time requested for empty data set"
-        )
+        logging.debug("Average processing time requested for empty data set")
         return 0
 
     total_processing_time = 0
@@ -113,50 +149,51 @@ def calculate_average_processing_time(data):
     return average_processing_time
 
 
+def find_largest_resource(data):
+    """Return the entry with the highest bytes_sent value."""
+    if not data:
+        logging.debug("Largest resource requested for empty data set")
+        return None
+
+    largest_entry = data[0]
+    logging.debug("Starting largest resource search with: %s", largest_entry)
+
+    for entry in data[1:]:
+        logging.debug(
+            "Comparing current entry %s (%d bytes) with largest %s (%d bytes)",
+            entry[0],
+            entry[2],
+            largest_entry[0],
+            largest_entry[2],
+        )
+
+        if entry[2] > largest_entry[2]:
+            largest_entry = entry
+            logging.debug("New largest resource found: %s", largest_entry)
+
+    return largest_entry
+
+
 def display_statistics(data):
+    """Print statistics required by the assignment."""
+    largest_entry = find_largest_resource(data)
     failed_requests = count_failed_requests(data)
     total_bytes = calculate_total_bytes_sent(data)
     total_kilobytes = convert_bytes_to_kilobytes(total_bytes)
     average_processing_time = calculate_average_processing_time(data)
 
+    if largest_entry is not None:
+        path, _, _, processing_time = largest_entry
+        print(f"Largest resource: {path} ({processing_time} ms)")
+
     print(f"Failed requests: {failed_requests}")
     print(f"Total bytes sent: {total_bytes}")
     print(f"Total kilobytes sent: {total_kilobytes:.2f}")
-    print(
-        "Average processing time: "
-        f"{average_processing_time:.2f} ms"
-    )
-
-
-def successful_reads(data):
-    success_list = []
-    
-    for entry in data:
-        if 200 <= entry[1] < 300:
-            success_list.append(entry)
-
-    logging.info("Number of successful entries: %d", len(success_list))
-    return success_list
-
-
-def failed_reads(data):
-    failed_400s,failed_500s = [],[]
-
-    for entry in data:
-        if 400 <= entry[1] < 500:
-            failed_400s.append(entry)
-        elif 500 <= entry[1] < 600:
-            failed_500s.append(entry)
-
-    fail_list = failed_400s + failed_500s
-    
-    logging.info("Number of 4xx entries: %d", len(failed_400s))
-    logging.info("Number of 5xx entries: %d", len(failed_500s))
-    
-    return fail_list
+    print(f"Average processing time: {average_processing_time:.2f} ms")
 
 
 def html_entries(data):
+    """Return successfully retrieved .html entries."""
     success_list = successful_reads(data)
     html_list = []
 
@@ -168,9 +205,10 @@ def html_entries(data):
 
 
 def print_html_entries(data):
+    """Print successfully retrieved .html entries."""
     entries = html_entries(data)
-
     print("HTML entries:")
+
     for entry in entries:
         print(entry)
 
@@ -178,12 +216,8 @@ def print_html_entries(data):
 def main():
     lines = sys.stdin.readlines()
     data = read_log(lines)
-
     display_log(data)
     display_statistics(data)
-
-    successful_reads(data)
-    failed_reads(data)
     print_html_entries(data)
 
 

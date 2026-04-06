@@ -14,10 +14,37 @@ VARIABLES:
   (/index.html, 200, 1024, 12)
 """
 
+import argparse
 import logging
 import sys
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        description="Process web server logs from standard input."
+    )
+    parser.add_argument(
+        "log_level",
+        nargs="?",
+        default="INFO",
+        help="Optional log level. Use DEBUG for verbose output.",
+    )
+    return parser
+
+
+def configure_logging(log_level):
+    normalized = log_level.upper()
+
+    if normalized == "DEBUG":
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
+    logging.basicConfig(
+        level=level,
+        format="%(levelname)s: %(message)s",
+        force=True,
+    )
 
 
 def read_log(lines):
@@ -29,7 +56,8 @@ def read_log(lines):
     for line in lines:
         fields = line.strip().split()
 
-        if len(fields) == 4:  # log entry must have 4 fields to be parsed
+        if len(fields) == 4:
+            # log entry must have 4 fields to be parsed
             entry = (
                 fields[0],
                 int(fields[1]),
@@ -213,7 +241,12 @@ def print_html_entries(data):
         print(entry)
 
 
-def main():
+def run(args=None):
+    parser = build_parser()
+    parsed_args = parser.parse_args(args)
+
+    configure_logging(parsed_args.log_level)
+
     lines = sys.stdin.readlines()
     data = read_log(lines)
     display_log(data)
@@ -222,4 +255,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()

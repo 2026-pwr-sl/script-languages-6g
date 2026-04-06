@@ -244,14 +244,18 @@ def print_html_entries(data):
 def run(args=None):
     parser = build_parser()
     parsed_args = parser.parse_args(args)
-
     configure_logging(parsed_args.log_level)
+
+    logging.info("Start of log processing")
 
     lines = sys.stdin.readlines()
     data = read_log(lines)
+
     display_log(data)
     display_statistics(data)
     print_html_entries(data)
+
+    logging.info("Finish of log processing")
 
 
 if __name__ == "__main__":

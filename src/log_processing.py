@@ -19,6 +19,32 @@ import logging
 import sys
 
 
+class LogEntry:
+    def __init__(self, path, status, bytes_sent, processing_time):
+        self.path = path
+        self.status = status
+        self.bytes_sent = bytes_sent
+        self.processing_time = processing_time
+
+    def __str__(self):
+        return (
+            f"{self.path} "
+            f"{self.status} "
+            f"{self.bytes_sent} "
+            f"{self.processing_time}"
+        )
+
+    def __repr__(self):
+        return (
+            f"LogEntry("
+            f"path={self.path!r}, "
+            f"status={self.status!r}, "
+            f"bytes_sent={self.bytes_sent!r}, "
+            f"processing_time={self.processing_time!r}"
+            f")"
+        )
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         description="Process web server logs from standard input."

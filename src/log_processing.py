@@ -15,6 +15,7 @@ VARIABLES:
 """
 
 import argparse
+from datetime import datetime
 import logging
 import sys
 
@@ -55,6 +56,29 @@ class LogEntry:
 
     def bytes_in_kb(self):
         return self.bytes_sent / 1024
+    
+
+def parse_timestamp(ts_string):
+    
+    ts_string = ts_string.strip("[]").split(" ")[0]
+    
+    parts = ts_string.split(':')
+    
+    hour = int(parts[1])
+    minute = int(parts[2])
+    second = int(parts[3])
+
+    date_fields = parts[0].split('/')
+    day = int(date_fields[0])
+    month_str = date_fields[1]
+    year = int(date_fields[2])
+
+    months = {
+        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+        'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+    }
+    
+    return datetime(year, months[month_str], day, hour, minute, second)
 
 
 def build_parser():

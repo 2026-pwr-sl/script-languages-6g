@@ -44,6 +44,18 @@ class LogEntry:
             f")"
         )
 
+    def is_success(self):
+        return 200 <= self.status < 300
+
+    def is_failed(self):
+        return 400 <= self.status < 600
+
+    def is_html(self):
+        return self.path.endswith(".html")
+
+    def bytes_in_kb(self):
+        return self.bytes_sent / 1024
+
 
 def build_parser():
     parser = argparse.ArgumentParser(

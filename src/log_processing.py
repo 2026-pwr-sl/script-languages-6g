@@ -21,7 +21,8 @@ import sys
 
 
 class LogEntry:
-    def __init__(self, path, status, bytes_sent, processing_time):
+    def __init__(self, timestamp, path, status, bytes_sent, processing_time):
+        self.timestamp = timestamp
         self.path = path
         self.status = status
         self.bytes_sent = bytes_sent
@@ -29,6 +30,7 @@ class LogEntry:
 
     def __str__(self):
         return (
+            f"{self.timestamp} "
             f"{self.path} "
             f"{self.status} "
             f"{self.bytes_sent} "
@@ -38,6 +40,7 @@ class LogEntry:
     def __repr__(self):
         return (
             f"LogEntry("
+            f"timestamp={self.timestamp!r}, "
             f"path={self.path!r}, "
             f"status={self.status!r}, "
             f"bytes_sent={self.bytes_sent!r}, "

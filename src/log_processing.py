@@ -68,9 +68,9 @@ def parse_line_to_logentry(line):
     
     ip = parts[0]
     timestamp = parts[3]
-    method = parts[5]
+    method = parts[5].strip('"')
     path = parts[6]
-    protocol = parts[7]
+    protocol = parts[7].strip('"')
     status = int(parts[8])
     bytes_sent = int(parts[9])
     

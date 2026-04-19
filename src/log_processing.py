@@ -20,27 +20,33 @@ import sys
 
 
 class LogEntry:
-    def __init__(self, path, status, bytes_sent, processing_time):
+    def __init__(self, ip, timestamp, method, path, protocol, status, bytes_sent):
+        self.ip = ip
+        self.timestamp = timestamp
+        self.method = method
         self.path = path
+        self.protocol = protocol
         self.status = status
         self.bytes_sent = bytes_sent
-        self.processing_time = processing_time
 
     def __str__(self):
         return (
+            f"{self.ip} "
+            f"{self.timestamp} "
             f"{self.path} "
             f"{self.status} "
-            f"{self.bytes_sent} "
-            f"{self.processing_time}"
         )
 
     def __repr__(self):
         return (
             f"LogEntry("
+            f"ip={self.ip!r}, "
+            f"timestamp={self.timestamp!r}, "
+            f"method={self.method!r}, "
             f"path={self.path!r}, "
+            f"protocol={self.protocol!r}, "
             f"status={self.status!r}, "
-            f"bytes_sent={self.bytes_sent!r}, "
-            f"processing_time={self.processing_time!r}"
+            f"bytes_sent={self.bytes_sent!r}"
             f")"
         )
 
@@ -55,6 +61,22 @@ class LogEntry:
 
     def bytes_in_kb(self):
         return self.bytes_sent / 1024
+   
+    
+def parse_line_to_logentry(line):
+    parts = line.split()
+    
+    ip = parts[0]
+    timestamp = parts[3]
+    method = parts[5]
+    path = parts[6]
+    protocol = parts[7]
+    status = int(parts[8])
+    bytes_sent = int(parts[9])
+    
+    datetime = parse_timestamp(timestamp)
+    
+    return LogEntry(ip, datetime, method, path, protocol, status, bytes_sent)
 
 
 def build_parser():

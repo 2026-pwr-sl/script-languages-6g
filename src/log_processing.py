@@ -64,27 +64,67 @@ class LogEntry:
         return self.bytes_sent / 1024
     
 
-def parse_timestamp(ts_string):
-    parts = ts_string.split(' ')
-    parts = parts[0].split(':')
-    
-    hour = int(parts[1])
-    minute = int(parts[2])
-    second = int(parts[3])
+from datetime import datetime
 
-    date_fields = parts[0].split('/')
-    day = int(date_fields[0])
-    month_str = date_fields[1]
-    year = int(date_fields[2])
+def parse_timestamp(ts_string):
+    ts_string = ts_string.strip()
+    ts_string = ts_string.strip("[]")
+    ts_string = ts_string.split(" ")[0]
+
+    date_part, time_part = ts_string.split(":")[0], ":".join(ts_string.split(":")[1:])
+
+    day, month_str, year = date_part.split("/")
+    hour, minute, second = time_part.split(":")
 
     months = {
-        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-        'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+        "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4,
+        "May": 5, "Jun": 6, "Jul": 7, "Aug": 8,
+        "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12
     }
-    
-    return datetime(year, months[month_str], day, hour, minute, second)
+
+    return datetime(
+        int(year),
+        months[month_str],
+        int(day),
+        int(hour),
+        int(minute),
+        int(second)
+    )
+
+
+def parse_log_line(line):
+    stripped_line = line.strip()
+
+    if not stripped_line:
+        return None
+
+    parts = stripped_line.split()
+
+    ip_address = parts[0]
+    timestamp = parse_timestamp(parts[3] + " " + parts[4])
+    method = parts[5].strip('"')
+    path = parts[6]
+    protocol = parts[7].strip('"')
+    status = int(parts[8])
+    bytes_sent = int(parts[9])
+
+    return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
    
-    
+
+def read_log_objects(lines):
+    logging.debug("Read %d raw lines from stdin", len(lines))
+
+    entries = []
+
+    for line in lines:
+        entry = parse_log_line(line)
+        if entry is not None:
+            entries.append(entry)
+
+    logging.debug("Parsed %d log entries into LogEntry objects", len(entries))
+    return entries
+
+
 def parse_line_to_logentry(line):
     parts = line.split()
     

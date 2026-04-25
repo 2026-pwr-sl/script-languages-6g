@@ -5,13 +5,13 @@ VARIABLES:
   so first line from file is lines[0],
   lines contain special characters like \n, \t, \r
 
-- data - list of tuples, each tuple represents one parsed log entry (one line)
-  (path, status, bytes_sent, processing_time),
+- data - list of LogEntry objects, each object represents one parsed log entry
+  with fields path, status, bytes_sent and processing_time,
   for example line
   /index.html 200 1024 12
 
   is parsed into
-  (/index.html, 200, 1024, 12)
+  LogEntry(path="/index.html", status=200, bytes_sent=1024, processing_time=12)
 """
 
 import argparse
@@ -21,7 +21,17 @@ import sys
 
 
 class LogEntry:
-    def __init__(self, ip, timestamp, method, path, protocol, status, bytes_sent):
+    def __init__(
+        self,
+        ip=None,
+        timestamp=None,
+        method=None,
+        path="",
+        protocol=None,
+        status=0,
+        bytes_sent=0,
+        processing_time=0,
+    ):
         self.ip = ip
         self.timestamp = timestamp
         self.method = method
@@ -29,13 +39,14 @@ class LogEntry:
         self.protocol = protocol
         self.status = status
         self.bytes_sent = bytes_sent
+        self.processing_time = processing_time
 
     def __str__(self):
         return (
-            f"{self.ip} "
-            f"{self.timestamp} "
-            f"{self.path} "
-            f"{self.status} "
+            f"LogEntry(path={self.path}, "
+            f"status={self.status}, "
+            f"bytes_sent={self.bytes_sent}, "
+            f"processing_time={self.processing_time})"
         )
 
     def __repr__(self):
@@ -47,7 +58,8 @@ class LogEntry:
             f"path={self.path!r}, "
             f"protocol={self.protocol!r}, "
             f"status={self.status!r}, "
-            f"bytes_sent={self.bytes_sent!r}"
+            f"bytes_sent={self.bytes_sent!r}, "
+            f"processing_time={self.processing_time!r}"
             f")"
         )
 
@@ -96,9 +108,17 @@ def parse_line_to_logentry(line):
     status = int(parts[8])
     bytes_sent = int(parts[9])
     
-    datetime = parse_timestamp(timestamp)
-    
-    return LogEntry(ip, datetime, method, path, protocol, status, bytes_sent)
+    parsed_timestamp = parse_timestamp(timestamp)
+
+    return LogEntry(
+        ip=ip,
+        timestamp=parsed_timestamp,
+        method=method,
+        path=path,
+        protocol=protocol,
+        status=status,
+        bytes_sent=bytes_sent,
+    )
 
 
 def build_parser():
@@ -130,7 +150,7 @@ def configure_logging(log_level):
 
 
 def read_log(lines):
-    """Parse lines into a list of (path, status, bytes_sent, processing_time)."""
+    """Parse lines into a list of LogEntry objects."""
     logging.debug("Read %d raw lines from stdin", len(lines))
 
     result = []
@@ -139,12 +159,11 @@ def read_log(lines):
         fields = line.strip().split()
 
         if len(fields) == 4:
-            # log entry must have 4 fields to be parsed
-            entry = (
-                fields[0],
-                int(fields[1]),
-                int(fields[2]),
-                int(fields[3]),
+            entry = LogEntry(
+                path=fields[0],
+                status=int(fields[1]),
+                bytes_sent=int(fields[2]),
+                processing_time=int(fields[3]),
             )
             result.append(entry)
             logging.debug("Parsed line: %s", entry)
@@ -159,11 +178,11 @@ def display_log(data):
     """Print paths from log entries, prefixing failed reads with !."""
     logging.debug("Displaying %d log entries", len(data))
 
-    for path, status, _, _ in data:
-        if 400 <= status < 600:
-            print("!" + path)
+    for entry in data:
+        if 400 <= entry.status < 600:
+            print("!" + entry.path)
         else:
-            print(path)
+            print(entry.path)
 
 
 def successful_reads(data):
@@ -171,7 +190,7 @@ def successful_reads(data):
     success_list = []
 
     for entry in data:
-        if 200 <= entry[1] < 300:
+        if 200 <= entry.status < 300:
             success_list.append(entry)
 
     logging.info("Number of successful entries: %d", len(success_list))
@@ -184,9 +203,9 @@ def failed_reads(data):
     failed_500s = []
 
     for entry in data:
-        if 400 <= entry[1] < 500:
+        if 400 <= entry.status < 500:
             failed_400s.append(entry)
-        elif 500 <= entry[1] < 600:
+        elif 500 <= entry.status < 600:
             failed_500s.append(entry)
 
     fail_list = failed_400s + failed_500s
@@ -208,12 +227,12 @@ def calculate_total_bytes_sent(data):
     """Return total bytes sent to the user."""
     total_bytes = 0
 
-    for path, _, bytes_sent, _ in data:
-        total_bytes += bytes_sent
+    for entry in data:
+        total_bytes += entry.bytes_sent
         logging.debug(
             "Added bytes for %s, bytes_sent=%d current_total=%d",
-            path,
-            bytes_sent,
+            entry.path,
+            entry.bytes_sent,
             total_bytes,
         )
 
@@ -240,12 +259,12 @@ def calculate_average_processing_time(data):
 
     total_processing_time = 0
 
-    for path, _, _, processing_time in data:
-        total_processing_time += processing_time
+    for entry in data:
+        total_processing_time += entry.processing_time
         logging.debug(
             "Added processing time for %s, time=%d current_total=%d",
-            path,
-            processing_time,
+            entry.path,
+            entry.processing_time,
             total_processing_time,
         )
 
@@ -271,13 +290,13 @@ def find_largest_resource(data):
     for entry in data[1:]:
         logging.debug(
             "Comparing current entry %s (%d bytes) with largest %s (%d bytes)",
-            entry[0],
-            entry[2],
-            largest_entry[0],
-            largest_entry[2],
+            entry.path,
+            entry.bytes_sent,
+            largest_entry.path,
+            largest_entry.bytes_sent,
         )
 
-        if entry[2] > largest_entry[2]:
+        if entry.bytes_sent > largest_entry.bytes_sent:
             largest_entry = entry
             logging.debug("New largest resource found: %s", largest_entry)
 
@@ -293,8 +312,10 @@ def display_statistics(data):
     average_processing_time = calculate_average_processing_time(data)
 
     if largest_entry is not None:
-        path, _, _, processing_time = largest_entry
-        print(f"Largest resource: {path} ({processing_time} ms)")
+        print(
+            "Largest resource: "
+            f"{largest_entry.path} ({largest_entry.processing_time} ms)"
+        )
 
     print(f"Failed requests: {failed_requests}")
     print(f"Total bytes sent: {total_bytes}")
@@ -308,7 +329,7 @@ def html_entries(data):
     html_list = []
 
     for entry in success_list:
-        if entry[0].endswith(".html"):
+        if entry.path.endswith(".html"):
             html_list.append(entry)
 
     return html_list

@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from ipaddress import IPv4Address
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
@@ -12,8 +12,8 @@ from lab5 import LogEntry, parse_timestamp, parse_line_to_logentry, read_log
 class TestLogProcessing(unittest.TestCase):
     def test_parse_timestamp_returns_datetime(self):
         result = parse_timestamp("[03/Jan/2026:02:14:55 +0100]")
-        expected = datetime(2026, 1, 3, 2, 14, 55).astimezone().replace(tzinfo=result.tzinfo)
-        self.assertEqual(result, expected)
+        expected = datetime(2026, 1, 3, 1, 14, 55, tzinfo=timezone.utc)
+        self.assertEqual(result, expected.astimezone(result.tzinfo))
 
     def test_parse_line_to_logentry_returns_log_entry_object(self):
         line = '185.23.54.12 - - [03/Jan/2026:02:14:55 +0100] "GET /home HTTP/1.1" 200 1823'
@@ -29,7 +29,7 @@ class TestLogProcessing(unittest.TestCase):
         lines = [
             '185.23.54.12 - - [03/Jan/2026:02:14:55 +0100] "GET /home HTTP/1.1" 200 1823\n',
             '77.91.204.33 - - [15/Feb/2026:18:45:12 +0000] "POST /api/login HTTP/1.1" 401 642\n',
-            '\n'
+            '\n',
         ]
 
         result = read_log(lines)

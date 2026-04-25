@@ -114,20 +114,31 @@ def parse_line_to_logentry(line):
     return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
 
 
-def read_log(lines):
-    logging.debug("Read %d raw lines from stdin", len(lines))
+def read_log(filename):
+    logging.debug("Opening file: %s", filename)
 
-    entries = []
+    log_data = {}
+    
+    try:
+        with open(filename, "r") as file:
+            for index, line in enumerate(file):
+                entry = parse_line_to_logentry(line)
+                if entry:
+                    log_data[index] = {
+                        "ip": entry.ip,
+                        "timestamp": entry.timestamp,
+                        "method": entry.method,
+                        "path": entry.path,
+                        "protocol": entry.protocol,
+                        "status": entry.status,
+                        "bytes_sent": entry.bytes_sent,
+                    }
+    except FileNotFoundError:
+        logging.error(f"File {filename} not found.")
+    
 
-    for line in lines:
-        entry = parse_line_to_logentry(line)
-        if entry is not None:
-            entries.append(entry)
-
-    logging.debug("Parsed %d log entries into LogEntry objects", len(entries))
-    return entries
-
-
+    logging.debug("Parsed %d log entries into dictionary", len(log_data))
+    return log_data
 
 
 def build_parser():
@@ -324,21 +335,21 @@ def display_requests_between(data, start_time, end_time):
             print(entry)
 
 
-
 def run(args=None):
     parser = build_parser()
+    parser.add_argument("filename", help="Path to the log file")
+    
     parsed_args = parser.parse_args(args)
     configure_logging(parsed_args.log_level)
 
     logging.info("Start of log processing")
 
-    lines = sys.stdin.readlines()
-    data = read_log(lines)
+    log_dict = read_log(parsed_args.filename)
+    data = list(log_dict.values())
 
     display_log(data)
     display_statistics(data)
     print_html_entries(data)
-
 
     logging.info("Finish of log processing")
 

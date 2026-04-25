@@ -5,7 +5,7 @@ VARIABLES:
   so first line from file is lines[0],
   lines contain special characters like \n, \t, \r
 
-- data - list of LogEntry objects with fields:
+- data - list of log_data{}  with keys:
 ip, timestamp, method, path, protocol, status, bytes_sent
 
 """

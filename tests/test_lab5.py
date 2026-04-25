@@ -5,7 +5,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-from log_processing import LogEntry, parse_timestamp, parse_log_line, read_log_objects
+from lab5 import LogEntry, parse_timestamp, parse_line_to_logentry, read_log
 
 
 class TestLogProcessing(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestLogProcessing(unittest.TestCase):
 
     def test_parse_log_line_returns_log_entry_object(self):
         line = '185.23.54.12 - - [03/Jan/2026:02:14:55 +0100] "GET /home HTTP/1.1" 200 1823'
-        entry = parse_log_line(line)
+        entry = parse_line_to_logentry(line)
 
         self.assertIsInstance(entry, LogEntry)
         self.assertEqual(entry.path, "/home")
@@ -30,7 +30,7 @@ class TestLogProcessing(unittest.TestCase):
             '\n'
         ]
 
-        result = read_log_objects(lines)
+        result = read_log(lines)
 
         self.assertEqual(len(result), 2)
         self.assertTrue(all(isinstance(entry, LogEntry) for entry in result))

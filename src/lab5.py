@@ -5,19 +5,16 @@ VARIABLES:
   so first line from file is lines[0],
   lines contain special characters like \n, \t, \r
 
-- data - list of LogEntry objects, each object represents one parsed log entry
-  with fields path, status, bytes_sent and processing_time,
-  for example line
-  /index.html 200 1024 12
+- data - list of LogEntry objects with fields:
+ip, timestamp, method, path, protocol, status, bytes_sent
 
-  is parsed into
-  LogEntry(path="/index.html", status=200, bytes_sent=1024, processing_time=12)
 """
 
 import argparse
 from datetime import datetime
 import logging
 import sys
+from ipaddress import IPv4Address,IPv4Network
 
 
 class LogEntry:
@@ -30,23 +27,22 @@ class LogEntry:
         protocol=None,
         status=0,
         bytes_sent=0,
-        processing_time=0,
     ):
-        self.ip = ip
+        self.ip = IPv4Address(ip)
         self.timestamp = timestamp
         self.method = method
         self.path = path
         self.protocol = protocol
         self.status = status
         self.bytes_sent = bytes_sent
-        self.processing_time = processing_time
 
     def __str__(self):
         return (
-            f"LogEntry(path={self.path}, "
-            f"status={self.status}, "
-            f"bytes_sent={self.bytes_sent}, "
-            f"processing_time={self.processing_time})"
+            f"ip: {self.ip}, "
+            f"time: {self.timestamp}, "
+            f"request: {self.method} {self.path} {self.protocol}, "
+            f"status: {self.status}, "
+            f"bytes_sent: {self.bytes_sent}"
         )
 
     def __repr__(self):
@@ -59,7 +55,6 @@ class LogEntry:
             f"protocol={self.protocol!r}, "
             f"status={self.status!r}, "
             f"bytes_sent={self.bytes_sent!r}, "
-            f"processing_time={self.processing_time!r}"
             f")"
         )
 
@@ -74,19 +69,18 @@ class LogEntry:
 
     def bytes_in_kb(self):
         return self.bytes_sent / 1024
-    
 
-from datetime import datetime
 
 def parse_timestamp(ts_string):
     ts_string = ts_string.strip()
     ts_string = ts_string.strip("[]")
-    ts_string = ts_string.split(" ")[0]
 
     date_part, time_part = ts_string.split(":")[0], ":".join(ts_string.split(":")[1:])
 
     day, month_str, year = date_part.split("/")
-    hour, minute, second = time_part.split(":")
+    hour, minute, second_timezone = time_part.split(":")
+
+    second, timezone = second_timezone.split(" ")
 
     months = {
         "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4,
@@ -94,17 +88,14 @@ def parse_timestamp(ts_string):
         "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12
     }
 
-    return datetime(
-        int(year),
-        months[month_str],
-        int(day),
-        int(hour),
-        int(minute),
-        int(second)
+    return datetime.strptime(
+        f"{year}-{months[month_str]:02d}-{int(day):02d} "
+        f"{int(hour):02d}:{int(minute):02d}:{int(second):02d} {timezone}",
+        "%Y-%m-%d %H:%M:%S %z"
     )
 
 
-def parse_log_line(line):
+def parse_line_to_logentry(line):
     stripped_line = line.strip()
 
     if not stripped_line:
@@ -121,15 +112,15 @@ def parse_log_line(line):
     bytes_sent = int(parts[9])
 
     return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
-   
 
-def read_log_objects(lines):
+
+def read_log(lines):
     logging.debug("Read %d raw lines from stdin", len(lines))
 
     entries = []
 
     for line in lines:
-        entry = parse_log_line(line)
+        entry = parse_line_to_logentry(line)
         if entry is not None:
             entries.append(entry)
 
@@ -137,28 +128,6 @@ def read_log_objects(lines):
     return entries
 
 
-def parse_line_to_logentry(line):
-    parts = line.split()
-    
-    ip = parts[0]
-    timestamp = parts[3].strip("[")
-    method = parts[5].strip('"')
-    path = parts[6]
-    protocol = parts[7].strip('"')
-    status = int(parts[8])
-    bytes_sent = int(parts[9])
-    
-    parsed_timestamp = parse_timestamp(timestamp)
-
-    return LogEntry(
-        ip=ip,
-        timestamp=parsed_timestamp,
-        method=method,
-        path=path,
-        protocol=protocol,
-        status=status,
-        bytes_sent=bytes_sent,
-    )
 
 
 def build_parser():
@@ -187,31 +156,6 @@ def configure_logging(log_level):
         format="%(levelname)s: %(message)s",
         force=True,
     )
-
-
-def read_log(lines):
-    """Parse lines into a list of LogEntry objects."""
-    logging.debug("Read %d raw lines from stdin", len(lines))
-
-    result = []
-
-    for line in lines:
-        fields = line.strip().split()
-
-        if len(fields) == 4:
-            entry = LogEntry(
-                path=fields[0],
-                status=int(fields[1]),
-                bytes_sent=int(fields[2]),
-                processing_time=int(fields[3]),
-            )
-            result.append(entry)
-            logging.debug("Parsed line: %s", entry)
-        else:
-            logging.debug("Skipped line: %s", line.strip())
-
-    logging.debug("Parsed %d log entries", len(result))
-    return result
 
 
 def display_log(data):
@@ -291,32 +235,6 @@ def convert_bytes_to_kilobytes(total_bytes):
     return total_kilobytes
 
 
-def calculate_average_processing_time(data):
-    """Return average processing time in ms."""
-    if not data:
-        logging.debug("Average processing time requested for empty data set")
-        return 0
-
-    total_processing_time = 0
-
-    for entry in data:
-        total_processing_time += entry.processing_time
-        logging.debug(
-            "Added processing time for %s, time=%d current_total=%d",
-            entry.path,
-            entry.processing_time,
-            total_processing_time,
-        )
-
-    average_processing_time = total_processing_time / len(data)
-    logging.debug(
-        "Calculated average processing time, total=%d count=%d average=%.2f",
-        total_processing_time,
-        len(data),
-        average_processing_time,
-    )
-    return average_processing_time
-
 
 def find_largest_resource(data):
     """Return the entry with the highest bytes_sent value."""
@@ -349,18 +267,17 @@ def display_statistics(data):
     failed_requests = count_failed_requests(data)
     total_bytes = calculate_total_bytes_sent(data)
     total_kilobytes = convert_bytes_to_kilobytes(total_bytes)
-    average_processing_time = calculate_average_processing_time(data)
+
 
     if largest_entry is not None:
         print(
             "Largest resource: "
-            f"{largest_entry.path} ({largest_entry.processing_time} ms)"
+            f"{largest_entry.path} ({largest_entry.bytes_sent} b)"
         )
 
     print(f"Failed requests: {failed_requests}")
     print(f"Total bytes sent: {total_bytes}")
     print(f"Total kilobytes sent: {total_kilobytes:.2f}")
-    print(f"Average processing time: {average_processing_time:.2f} ms")
 
 
 def html_entries(data):
@@ -378,10 +295,34 @@ def html_entries(data):
 def print_html_entries(data):
     """Print successfully retrieved .html entries."""
     entries = html_entries(data)
-    print("HTML entries:")
+    if entries:
+        print("HTML entries:")
+        for entry in entries:
+            print(entry)
+    else:
+        print("HTML entries: none")
 
-    for entry in entries:
-        print(entry)
+
+def entries_from_network(data, network_text):
+    network = IPv4Network(network_text)
+    result = []
+
+    for entry in data:
+        if entry.ip in network:
+            result.append(entry)
+
+    return result
+
+
+def display_requests_between(data, start_time, end_time):
+    if end_time < start_time:
+        print("Warning: second datetime is earlier than first.")
+        return
+
+    for entry in data:
+        if start_time <= entry.timestamp <= end_time:
+            print(entry)
+
 
 
 def run(args=None):
@@ -397,6 +338,7 @@ def run(args=None):
     display_log(data)
     display_statistics(data)
     print_html_entries(data)
+
 
     logging.info("Finish of log processing")
 

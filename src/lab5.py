@@ -238,6 +238,25 @@ def count_requests_by_ip(data, ip_address):
     request_counts = requests_per_ip(data)
     return request_counts.get(IPv4Address(ip_address), 0)
 
+def ip_find(data, most_active=True):
+    """Return IP addresses with the highest or lowest number of requests."""
+    request_counts = requests_per_ip(data)
+
+    if not request_counts:
+        return []
+
+    if most_active:
+        searched_count = max(request_counts.values())
+    else:
+        searched_count = min(request_counts.values())
+
+    result = []
+    for ip_address, count in request_counts.items():
+        if count == searched_count:
+            result.append(ip_address)
+
+    return result
+
 
 def calculate_total_bytes_sent(data):
     """Return total bytes sent to the user."""

@@ -238,6 +238,7 @@ def count_requests_by_ip(data, ip_address):
     request_counts = requests_per_ip(data)
     return request_counts.get(IPv4Address(ip_address), 0)
 
+
 def ip_find(data, most_active=True):
     """Return IP addresses with the highest or lowest number of requests."""
     request_counts = requests_per_ip(data)
@@ -256,6 +257,24 @@ def ip_find(data, most_active=True):
             result.append(ip_address)
 
     return result
+
+
+def longest_request(data):
+    """Return the longest request string together with its IP address."""
+    if not data:
+        return None
+
+    longest_entry = data[0]
+    longest_request_string = f"{longest_entry.method} {longest_entry.path}"
+
+    for entry in data[1:]:
+        request_string = f"{entry.method} {entry.path}"
+
+        if len(request_string) > len(longest_request_string):
+            longest_entry = entry
+            longest_request_string = request_string
+
+    return longest_request_string, longest_entry.ip
 
 
 def calculate_total_bytes_sent(data):

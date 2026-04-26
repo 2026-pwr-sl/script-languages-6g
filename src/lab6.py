@@ -277,8 +277,8 @@ def non_existent(data):
     requests = []
 
     for entry in data:
-        if entry.status == 404:
-            request = f"{entry.method} {entry.path} {entry.protocol}"
+        if entry["status"] == 404:
+            request = f'{entry["method"]} {entry["path"]} {entry["protocol"]}'
             if request not in requests:
                 requests.append(request)
 
@@ -290,15 +290,13 @@ def requests_per_ip(data):
     request_counts = {}
 
     for entry in data:
-        if entry.ip in request_counts:
-            request_counts[entry.ip] += 1
-        else:
-            request_counts[entry.ip] = 1
+        ip = entry["ip"]
+        counts[ip] = counts.get(ip, 0) + 1
 
     return request_counts
 
 
-def count_requests_by_ip(data, ip_address):
+def ip_requests_number(data, ip_address):
     """Return number of requests made by one IP address."""
     request_counts = requests_per_ip(data)
     return request_counts.get(IPv4Address(ip_address), 0)
@@ -330,16 +328,16 @@ def longest_request(data):
         return None
 
     longest_entry = data[0]
-    longest_request_string = f"{longest_entry.method} {longest_entry.path}"
+    longest_request_string = f'{longest["method"]} {longest["path"]}'
 
     for entry in data[1:]:
-        request_string = f"{entry.method} {entry.path}"
+        request_string = f'{entry["method"]} {entry["path"]}'
 
         if len(request_string) > len(longest_request_string):
             longest_entry = entry
             longest_request_string = request_string
 
-    return longest_request_string, longest_entry.ip
+    return longest_request_string, longest_entry["ip"]
 
 
 def display_statistics(data):

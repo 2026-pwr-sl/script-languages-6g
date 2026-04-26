@@ -207,6 +207,38 @@ def count_failed_requests(data):
     return total_failed
 
 
+def non_existent(data):
+    """Return unique request strings with HTTP status 404."""
+    requests = []
+
+    for entry in data:
+        if entry.status == 404:
+            request = f"{entry.method} {entry.path} {entry.protocol}"
+            if request not in requests:
+                requests.append(request)
+
+    return requests
+
+
+def requests_per_ip(data):
+    """Return a dictionary with request counts for each IP address."""
+    request_counts = {}
+
+    for entry in data:
+        if entry.ip in request_counts:
+            request_counts[entry.ip] += 1
+        else:
+            request_counts[entry.ip] = 1
+
+    return request_counts
+
+
+def count_requests_by_ip(data, ip_address):
+    """Return number of requests made by one IP address."""
+    request_counts = requests_per_ip(data)
+    return request_counts.get(IPv4Address(ip_address), 0)
+
+
 def calculate_total_bytes_sent(data):
     """Return total bytes sent to the user."""
     total_bytes = 0

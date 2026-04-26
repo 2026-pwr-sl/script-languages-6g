@@ -6,7 +6,7 @@ from ipaddress import IPv4Address
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-from lab5 import LogEntry, parse_timestamp, parse_line_to_logentry, read_log, ip_find,  longest_request
+from lab6 import LogEntry, parse_timestamp, parse_line_to_logentry, read_log, ip_find,  longest_request
 
 
 class TestLogProcessing(unittest.TestCase):

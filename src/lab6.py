@@ -291,7 +291,7 @@ def requests_per_ip(data):
 
     for entry in data:
         ip = entry["ip"]
-        counts[ip] = counts.get(ip, 0) + 1
+        request_counts[ip] = request_counts.get(ip, 0) + 1
 
     return request_counts
 
@@ -328,7 +328,7 @@ def longest_request(data):
         return None
 
     longest_entry = data[0]
-    longest_request_string = f'{longest["method"]} {longest["path"]}'
+    longest_request_string = f'{longest_entry["method"]} {longest_entry["path"]}'
 
     for entry in data[1:]:
         request_string = f'{entry["method"]} {entry["path"]}'

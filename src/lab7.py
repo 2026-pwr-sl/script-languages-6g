@@ -1,6 +1,9 @@
 class BadRequestTypeError(Exception):
     pass
 
+class BadHTTPVersion(Exception):
+    pass
+
 class HTTPRequest:
     """Simple class representing an HTTP request."""
 
@@ -32,8 +35,16 @@ def reqstr2obj(request_string):
     request_type, path, protocol = parts
 
     valid_request_types = {"GET", "POST", "HEAD"}
+    valid_protocols = {"HTTP1.0", "HTTP1.1", "HTTP2.0"}
+
 
     if request_type not in valid_request_types:
         raise BadRequestTypeError("Invalid request type")
+
+    if protocol not in valid_protocols:
+        raise BadHTTPVersion("Illegal HTTP version")
+
+    if not path.startswith("/"):
+        raise ValueError("Path must start with /")
 
     return HTTPRequest(request_type, path, protocol)

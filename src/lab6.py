@@ -114,31 +114,29 @@ def parse_line_to_logentry(line):
     return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
 
 
-def read_log(filename):
-    logging.debug("Opening file: %s", filename)
-
-    log_data = {}
+def read_log(lines):
+    """Parse a list of log lines into LogEntry objects.
     
-    try:
-        with open(filename, "r") as file:
-            for index, line in enumerate(file):
+    Args:
+        lines: List of log line strings
+        
+    Returns:
+        List of LogEntry objects
+    """
+    entries = []
+    
+    for line in lines:
+        line = line.strip()
+        if line:  # Skip empty lines
+            try:
                 entry = parse_line_to_logentry(line)
                 if entry:
-                    log_data[index] = {
-                        "ip": entry.ip,
-                        "timestamp": entry.timestamp,
-                        "method": entry.method,
-                        "path": entry.path,
-                        "protocol": entry.protocol,
-                        "status": entry.status,
-                        "bytes_sent": entry.bytes_sent,
-                    }
-    except FileNotFoundError:
-        logging.error(f"File {filename} not found.")
+                    entries.append(entry)
+            except (ValueError, IndexError):
+                continue  # Skip malformed lines
     
-
-    logging.debug("Parsed %d log entries into dictionary", len(log_data))
-    return log_data
+    logging.debug("Parsed %d log entries into list", len(entries))
+    return entries
 
 
 def build_parser():
@@ -174,10 +172,10 @@ def display_log(data):
     logging.debug("Displaying %d log entries", len(data))
 
     for entry in data:
-        if 400 <= entry['status'] < 600:
-            print("!" + entry['path'])
+        if 400 <= entry.status < 600:
+            print("!" + entry.path)
         else:
-            print(entry['path'])
+            print(entry.path)
 
 
 def successful_reads(data):
@@ -185,7 +183,7 @@ def successful_reads(data):
     success_list = []
 
     for entry in data:
-        if 200 <= entry['status'] < 300:
+        if 200 <= entry.status < 300:
             success_list.append(entry)
 
     logging.info("Number of successful entries: %d", len(success_list))
@@ -198,9 +196,9 @@ def failed_reads(data):
     failed_500s = []
 
     for entry in data:
-        if 400 <= entry['status'] < 500:
+        if 400 <= entry.status < 500:
             failed_400s.append(entry)
-        elif 500 <= entry['status'] < 600:
+        elif 500 <= entry.status < 600:
             failed_500s.append(entry)
 
     fail_list = failed_400s + failed_500s
@@ -223,11 +221,11 @@ def calculate_total_bytes_sent(data):
     total_bytes = 0
 
     for entry in data:
-        total_bytes += entry['bytes_sent']
+        total_bytes += entry.bytes_sent
         logging.debug(
             "Added bytes for %s, bytes_sent=%d current_total=%d",
-            entry['path'],
-            entry['bytes_sent'],
+            entry.path,
+            entry.bytes_sent,
             total_bytes,
         )
 
@@ -259,13 +257,13 @@ def find_largest_resource(data):
     for entry in data[1:]:
         logging.debug(
             "Comparing current entry %s (%d bytes) with largest %s (%d bytes)",
-            entry['path'],
-            entry['bytes_sent'],
-            largest_entry['path'],
-            largest_entry['bytes_sent'],
+            entry.path,
+            entry.bytes_sent,
+            largest_entry.path,
+            largest_entry.bytes_sent,
         )
 
-        if entry['bytes_sent'] > largest_entry['bytes_sent']:
+        if entry.bytes_sent > largest_entry.bytes_sent:
             largest_entry = entry
             logging.debug("New largest resource found: %s", largest_entry)
 
@@ -277,8 +275,8 @@ def non_existent(data):
     requests = []
 
     for entry in data:
-        if entry["status"] == 404:
-            request = f'{entry["method"]} {entry["path"]} {entry["protocol"]}'
+        if entry.status == 404:
+            request = f'{entry.method} {entry.path} {entry.protocol}'
             if request not in requests:
                 requests.append(request)
 
@@ -290,7 +288,7 @@ def requests_per_ip(data):
     request_counts = {}
 
     for entry in data:
-        ip = entry["ip"]
+        ip = entry.ip
         request_counts[ip] = request_counts.get(ip, 0) + 1
 
     return request_counts
@@ -328,16 +326,16 @@ def longest_request(data):
         return None
 
     longest_entry = data[0]
-    longest_request_string = f'{longest_entry["method"]} {longest_entry["path"]}'
+    longest_request_string = f'{longest_entry.method} {longest_entry.path}'
 
     for entry in data[1:]:
-        request_string = f'{entry["method"]} {entry["path"]}'
+        request_string = f'{entry.method} {entry.path}'
 
         if len(request_string) > len(longest_request_string):
             longest_entry = entry
             longest_request_string = request_string
 
-    return longest_request_string, longest_entry["ip"]
+    return longest_request_string, longest_entry.ip
 
 
 def display_statistics(data):
@@ -351,7 +349,7 @@ def display_statistics(data):
     if largest_entry is not None:
         print(
             "Largest resource: "
-            f"{largest_entry['path']} ({largest_entry['bytes_sent']} b)"
+            f"{largest_entry.path} ({largest_entry.bytes_sent} b)"
         )
 
     print(f"Failed requests: {failed_requests}")
@@ -365,7 +363,7 @@ def html_entries(data):
     html_list = []
 
     for entry in success_list:
-        if entry['path'].endswith(".html"):
+        if entry.path.endswith(".html"):
             html_list.append(entry)
 
     return html_list
@@ -387,7 +385,7 @@ def entries_from_network(data, network_text):
     result = []
 
     for entry in data:
-        if entry['ip'] in network:
+        if entry.ip in network:
             result.append(entry)
 
     return result
@@ -399,7 +397,7 @@ def display_requests_between(data, start_time, end_time):
         return
 
     for entry in data:
-        if start_time <= entry['timestamp'] <= end_time:
+        if start_time <= entry.timestamp <= end_time:
             print(entry)
 
 
@@ -412,8 +410,10 @@ def run(args=None):
 
     logging.info("Start of log processing")
 
-    log_dict = read_log(parsed_args.filename)
-    data = list(log_dict.values())
+    with open(parsed_args.filename, "r") as file:
+        lines = file.readlines()
+    
+    data = read_log(lines)
 
     display_log(data)
     display_statistics(data)

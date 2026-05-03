@@ -8,7 +8,7 @@ sys.path.insert(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")),
 )
 
-from lab7 import HTTPRequest, reqstr2obj, BadRequestTypeError
+from lab7 import HTTPRequest, reqstr2obj, BadRequestTypeError, BadHTTPVersion
 
 
 def test_reqstr2obj_type_error():
@@ -57,3 +57,13 @@ def test_reqstr2obj_returns_none_for_wrong_number_of_words():
 def test_reqstr2obj_raises_bad_request_type_error():
     with pytest.raises(BadRequestTypeError):
         reqstr2obj("DOWNLOAD /movie.mp4 HTTP1.1")
+
+
+def test_reqstr2obj_raises_bad_http_version():
+    with pytest.raises(BadHTTPVersion):
+        reqstr2obj("GET / HTTP3.0")
+
+
+def test_reqstr2obj_raises_value_error_if_path_does_not_start_with_slash():
+    with pytest.raises(ValueError, match="Path must start with /"):
+        reqstr2obj("GET index.html HTTP1.1")

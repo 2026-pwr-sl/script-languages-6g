@@ -155,7 +155,7 @@ def build_parser(default_log_file):
     parser.add_argument(
         "log_level",
         nargs="?",
-        default="INFO",
+        default=None,
         help="Optional log level. Use DEBUG for verbose output.",
     )
     return parser
@@ -450,8 +450,9 @@ def run(args=None):
     parser = build_parser(default_log_file=config["log_file"])
     
     parsed_args = parser.parse_args(args)
-    
-    configure_logging(parsed_args.log_level)
+
+    log_level = parsed_args.log_level or config["logging_level"]
+    configure_logging(log_level)
 
     logging.info("Start of log processing")
         

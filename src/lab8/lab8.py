@@ -14,22 +14,22 @@ import argparse
 from datetime import datetime
 import logging
 import sys
-from ipaddress import IPv4Address,IPv4Network
+from ipaddress import IPv4Address, IPv4Network
 import json
 from pathlib import Path
-from config import DEFAULT_CONFIG,CONFIG_ENCODING,CONFIG_FILE
+from config import DEFAULT_CONFIG, CONFIG_ENCODING, CONFIG_FILE
 
 
 class LogEntry:
     def __init__(
-        self,
-        ip=None,
-        timestamp=None,
-        method=None,
-        path="",
-        protocol=None,
-        status=0,
-        bytes_sent=0,
+            self,
+            ip=None,
+            timestamp=None,
+            method=None,
+            path="",
+            protocol=None,
+            status=0,
+            bytes_sent=0,
     ):
         self.ip = IPv4Address(ip)
         self.timestamp = timestamp
@@ -127,7 +127,7 @@ def read_log(lines):
         List of LogEntry objects
     """
     entries = []
-    
+
     for line in lines:
         line = line.strip()
         if line:  # Skip empty lines
@@ -137,7 +137,7 @@ def read_log(lines):
                     entries.append(entry)
             except (ValueError, IndexError):
                 continue  # Skip malformed lines
-    
+
     logging.debug("Parsed %d log entries into list", len(entries))
     return entries
 
@@ -147,8 +147,8 @@ def build_parser(default_log_file):
         description="Process web server logs from standard input."
     )
     parser.add_argument(
-        "filename", 
-        nargs="?", 
+        "filename",
+        nargs="?",
         default=default_log_file,
         help="Path to the log file (defaults to config file setting)"
     )
@@ -253,7 +253,6 @@ def convert_bytes_to_kilobytes(total_bytes):
     return total_kilobytes
 
 
-
 def find_largest_resource(data):
     """Return the entry with the highest bytes_sent value."""
     if not data:
@@ -354,7 +353,6 @@ def display_statistics(data):
     total_bytes = calculate_total_bytes_sent(data)
     total_kilobytes = convert_bytes_to_kilobytes(total_bytes)
 
-
     if largest_entry is not None:
         print(
             "Largest resource: "
@@ -400,6 +398,23 @@ def entries_from_network(data, network_text):
     return result
 
 
+def print_requests_from_config_ip(data, ip_address):
+    """Print all requests sent from the configured IP address."""
+    target_ip = IPv4Address(ip_address)
+
+    print(f"Requests from {target_ip}:")
+
+    found = False
+
+    for entry in data:
+        if entry.ip == target_ip:
+            print(entry)
+            found = True
+
+    if not found:
+        print("No requests found.")
+
+
 def display_requests_between(data, start_time, end_time):
     if end_time < start_time:
         print("Warning: second datetime is earlier than first.")
@@ -408,16 +423,16 @@ def display_requests_between(data, start_time, end_time):
     for entry in data:
         if start_time <= entry.timestamp <= end_time:
             print(entry)
-            
+
 
 def load_application_config():
     config_path = Path(CONFIG_FILE)
     app_config = DEFAULT_CONFIG.copy()
-    
+
     try:
         with open(config_path, "r", encoding=CONFIG_ENCODING) as file:
             loaded_config = json.load(file)
-            
+
         for key in app_config.keys():
             if key not in loaded_config:
                 logging.info("Missing parameter '%s' in config file. Using default: %s", key, app_config[key])
@@ -426,7 +441,7 @@ def load_application_config():
 
     except FileNotFoundError:
         logging.info("Configuration file does not exist.")
-        
+
     except json.JSONDecodeError:
         logging.error("Configuration file is not a valid JSON file.")
         sys.exit(1)
@@ -446,26 +461,29 @@ def get_log_lines(filename):
 
 def run(args=None):
     config = load_application_config()
-    
+
     parser = build_parser(default_log_file=config["log_file"])
-    
+
     parsed_args = parser.parse_args(args)
-    
+
     configure_logging(parsed_args.log_level)
 
     logging.info("Start of log processing")
-        
+
     lines = get_log_lines(parsed_args.filename)
     data = read_log(lines)
-
 
     display_log(data)
     display_statistics(data)
     print_html_entries(data)
-    
+
+    print_requests_from_config_ip(
+        data,
+        config["ip_address"]
+    )
+
     logging.info("Finish of log processing")
 
 
 if __name__ == "__main__":
     run()
-

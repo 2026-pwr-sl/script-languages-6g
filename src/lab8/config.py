@@ -13,7 +13,7 @@ LOGGING_LEVELS = {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}
 HTTP_METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 
 DEFAULT_CONFIG = {
-    "log_file": "access.log",
+    "log_file": "log_timestamped.txt",
     "ip_address": "127.0.0.1",
     "logging_level": "INFO",
     "lines_per_page": 10,

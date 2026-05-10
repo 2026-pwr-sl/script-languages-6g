@@ -458,9 +458,9 @@ def run(args=None):
     data = read_log(lines)
 
 
-#    display_log(data)
-#    display_statistics(data)
-#    print_html_entries(data)
+    display_log(data)
+    display_statistics(data)
+    print_html_entries(data)
 
     logging.info("Finish of log processing")
 

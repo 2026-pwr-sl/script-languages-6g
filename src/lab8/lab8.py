@@ -17,7 +17,7 @@ import sys
 from ipaddress import IPv4Address,IPv4Network
 import json
 from pathlib import Path
-from config import DEFAULT_CONFIG,CONFIG_ENCODING
+from config import DEFAULT_CONFIG,CONFIG_ENCODING,CONFIG_FILE
 
 
 class LogEntry:
@@ -410,7 +410,8 @@ def display_requests_between(data, start_time, end_time):
             print(entry)
             
 
-def load_application_config(config_path="config.json"):
+def load_application_config():
+    config_path = Path(CONFIG_FILE)
     app_config = DEFAULT_CONFIG.copy()
     
     try:
@@ -461,7 +462,7 @@ def run(args=None):
     display_log(data)
     display_statistics(data)
     print_html_entries(data)
-
+    
     logging.info("Finish of log processing")
 
 

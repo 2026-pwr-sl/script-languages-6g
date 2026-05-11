@@ -474,6 +474,8 @@ def print_requests_with_method(entries, method, lines_per_page, input_func=input
 
 def large_responses(entries, minimum_bytes):
     """Return requests whose response size is at least minimum_bytes."""
+    # This assertion helps debug incorrect configuration values.
+    # A negative byte threshold would make the filtering result misleading.
     assert minimum_bytes >= 0, "minimum_bytes must not be negative"
     return [entry for entry in entries if entry.bytes_sent >= minimum_bytes]
 

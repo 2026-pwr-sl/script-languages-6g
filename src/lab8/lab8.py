@@ -155,7 +155,7 @@ def build_parser(default_log_file):
     parser.add_argument(
         "log_level",
         nargs="?",
-        default="INFO",
+        default=None,
         help="Optional log level. Use DEBUG for verbose output.",
     )
     return parser

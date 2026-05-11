@@ -18,6 +18,8 @@ DEFAULT_CONFIG = {
     "logging_level": "INFO",
     "lines_per_page": 10,
     "request_method": "GET",
+    "request_method": "GET",
+    "min_bytes": 1000,
 }
 
 
@@ -106,6 +108,12 @@ def collect_config(input_func=input):
         "logging_level": ask_logging_level(input_func),
         "lines_per_page": ask_lines_per_page(input_func),
         "request_method": ask_request_method(input_func),
+        "request_method": ask_request_method(input_func),
+        "min_bytes": ask_non_negative_integer(
+            "Minimum response size in bytes",
+            DEFAULT_CONFIG["min_bytes"],
+            input_func,
+        ),
     }
 
 
@@ -137,6 +145,36 @@ def build_parser():
         help="Path where the JSON configuration file will be saved.",
     )
     return parser
+
+
+def ask_request_method(input_func=input):
+    while True:
+        value = ask_text(
+            "HTTP request method to display",
+            DEFAULT_CONFIG["request_method"],
+            input_func,
+        ).upper()
+
+        if value in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}:
+            return value
+
+        print("Enter a valid HTTP method, for example GET or POST.")
+
+
+def ask_non_negative_integer(prompt, default, input_func=input):
+    while True:
+        value = ask_text(prompt, str(default), input_func)
+
+        try:
+            number = int(value)
+        except ValueError:
+            print("Enter a whole number.")
+            continue
+
+        if number >= 0:
+            return number
+
+        print("The number must be zero or greater.")
 
 
 def main(args=None):

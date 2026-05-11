@@ -449,6 +449,49 @@ def load_application_config():
     return app_config
 
 
+def requests_by_method(entries, method):
+    """Return all requests with the selected HTTP method."""
+    selected_method = method.upper()
+    return [entry for entry in entries if entry.method.upper() == selected_method]
+
+
+def print_requests_with_method(entries, method, lines_per_page, input_func=input):
+    """Print requests with the selected method and pause after each page."""
+    if lines_per_page <= 0:
+        raise ValueError("lines_per_page must be greater than zero")
+
+    matching_entries = requests_by_method(entries, method)
+    print(f"Requests with method {method.upper()}: {len(matching_entries)}")
+
+    for index, entry in enumerate(matching_entries, start=1):
+        print(entry)
+
+        if index % lines_per_page == 0 and index < len(matching_entries):
+            input_func("Press Enter to display more...")
+
+    return len(matching_entries)
+
+
+def large_responses(entries, minimum_bytes):
+    """Return requests whose response size is at least minimum_bytes."""
+    # This assertion helps debug incorrect configuration values.
+    # A negative byte threshold would make the filtering result misleading.
+    assert minimum_bytes >= 0, "minimum_bytes must not be negative"
+    return [entry for entry in entries if entry.bytes_sent >= minimum_bytes]
+
+
+def print_large_responses(entries, minimum_bytes):
+    """Print requests controlled by custom min_bytes configuration value."""
+    matching_entries = large_responses(entries, minimum_bytes)
+
+    print(f"Requests with at least {minimum_bytes} bytes: {len(matching_entries)}")
+
+    for entry in matching_entries:
+        print(entry)
+
+    return len(matching_entries)
+
+
 def get_log_lines(filename):
     try:
         with open(filename, "r", encoding=CONFIG_ENCODING) as file:

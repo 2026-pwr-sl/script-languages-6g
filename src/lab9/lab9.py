@@ -22,6 +22,18 @@ from pathlib import Path
 
 CONFIG_FILE = Path(__file__).with_name("lab9.config")
 CONFIG_ENCODING = "utf-8"
+LOG_LINE_PATTERN = re.compile(
+    r"^(?P<ip>\d{1,3}(?:\.\d{1,3}){3})\s+\S+\s+\S+\s+"
+    r"\[(?P<timestamp>[^\]]+)\]\s+"
+    r'"(?P<request_header>[^"]+)"\s+'
+    r"(?P<status>\d{3})\s+"
+    r"(?P<bytes_sent>\d+|-)\s*$"
+)
+REQUEST_HEADER_PATTERN = re.compile(
+    r"^(?P<method>[A-Z]+)\s+"
+    r"(?P<path>\S+)\s+"
+    r"(?P<protocol>HTTP/\d(?:\.\d)?)$"
+)
 
 
 class LogEntry:
@@ -42,6 +54,10 @@ class LogEntry:
         self.protocol = protocol
         self.status = status
         self.bytes_sent = bytes_sent
+
+    @property
+    def request_header(self):
+        return f"{self.method} {self.path} {self.protocol}"
 
     def __str__(self):
         return (
@@ -102,23 +118,66 @@ def parse_timestamp(ts_string):
     )
 
 
-def parse_line_to_logentry(line):
+def parse_log_line(line):
+    """Parse one raw log line into a LogEntry object with regexes."""
     stripped_line = line.strip()
 
     if not stripped_line:
         return None
 
-    parts = stripped_line.split()
+    log_match = LOG_LINE_PATTERN.match(stripped_line)
 
-    ip_address = parts[0]
-    timestamp = parse_timestamp(parts[3] + " " + parts[4])
-    method = parts[5].strip('"')
-    path = parts[6]
-    protocol = parts[7].strip('"')
-    status = int(parts[8])
-    bytes_sent = int(parts[9])
+    if log_match is None:
+        raise ValueError(f"Malformed log line: {line!r}")
 
-    return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
+    request_header = log_match.group("request_header")
+    request_match = REQUEST_HEADER_PATTERN.match(request_header)
+
+    if request_match is None:
+        raise ValueError(f"Malformed HTTP request header: {request_header!r}")
+
+    bytes_sent_text = log_match.group("bytes_sent")
+    bytes_sent = 0 if bytes_sent_text == "-" else int(bytes_sent_text)
+
+    return LogEntry(
+        log_match.group("ip"),
+        parse_timestamp(log_match.group("timestamp")),
+        request_match.group("method"),
+        request_match.group("path"),
+        request_match.group("protocol"),
+        int(log_match.group("status")),
+        bytes_sent,
+    )
+
+
+def parse_line_to_logentry(line):
+    """Compatibility wrapper for the single-line log parser."""
+    return parse_log_line(line)
+
+
+def read_log(lines):
+    """Convert raw log lines into a list of LogEntry objects."""
+    logging.debug("Read %d raw lines", len(lines))
+
+    entries = []
+
+    for line in lines:
+        try:
+            entry = parse_line_to_logentry(line)
+        except ValueError:
+            logging.warning("Skipping malformed log line: %r", line)
+            continue
+
+        if entry is not None:
+            entries.append(entry)
+
+    logging.debug("Parsed %d log entries into LogEntry objects", len(entries))
+    return entries
+
+
+def parse_log_lines(lines):
+    """Compatibility wrapper for converting many raw log lines."""
+    return read_log(lines)
 
 
 def build_parser(default_log_file):
@@ -516,7 +575,11 @@ def load_config_regex():
     except FileNotFoundError:
         print(f"Configuration file '{CONFIG_FILE}' is missing.")
         sys.exit(1)
-    
+
+    log_filename_path = Path(log_filename)
+    if not log_filename_path.is_absolute():
+        log_filename = str((CONFIG_FILE.parent / log_filename_path).resolve())
+
     return display_settings, log_filename
 
 
@@ -528,8 +591,9 @@ def run(args=None):
     parsed_args = parser.parse_args(args)
 
     logging.info("Start of log processing")
-    
-    data = read_log(log_filename)
+
+    lines = get_log_lines(parsed_args.filename)
+    data = read_log(lines)
 
 #    display_log(data)
 #    display_statistics(data)

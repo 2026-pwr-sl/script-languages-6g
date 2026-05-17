@@ -13,10 +13,15 @@ ip, timestamp, method, path, protocol, status, bytes_sent
 import argparse
 from datetime import datetime
 import logging
+import re
 import sys
 from ipaddress import IPv4Address, IPv4Network
 import json
 from pathlib import Path
+
+
+CONFIG_FILE = Path(__file__).with_name("lab9.config")
+CONFIG_ENCODING = "utf-8"
 
 
 class LogEntry:
@@ -114,31 +119,6 @@ def parse_line_to_logentry(line):
     bytes_sent = int(parts[9])
 
     return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
-
-
-def read_log(lines):
-    """Parse a list of log lines into LogEntry objects.
-    
-    Args:
-        lines: List of log line strings
-        
-    Returns:
-        List of LogEntry objects
-    """
-    entries = []
-
-    for line in lines:
-        line = line.strip()
-        if line:  # Skip empty lines
-            try:
-                entry = parse_line_to_logentry(line)
-                if entry:
-                    entries.append(entry)
-            except (ValueError, IndexError):
-                continue  # Skip malformed lines
-
-    logging.debug("Parsed %d log entries into list", len(entries))
-    return entries
 
 
 def build_parser(default_log_file):
@@ -424,30 +404,6 @@ def display_requests_between(data, start_time, end_time):
             print(entry)
 
 
-def load_application_config():
-    config_path = Path(CONFIG_FILE)
-    app_config = DEFAULT_CONFIG.copy()
-
-    try:
-        with open(config_path, "r", encoding=CONFIG_ENCODING) as file:
-            loaded_config = json.load(file)
-
-        for key in app_config.keys():
-            if key not in loaded_config:
-                logging.info("Missing parameter '%s' in config file. Using default: %s", key, app_config[key])
-            else:
-                app_config[key] = loaded_config[key]
-
-    except FileNotFoundError:
-        logging.info("Configuration file does not exist.")
-
-    except json.JSONDecodeError:
-        logging.error("Configuration file is not a valid JSON file.")
-        sys.exit(1)
-
-    return app_config
-
-
 def requests_by_method(entries, method):
     """Return all requests with the selected HTTP method."""
     selected_method = method.upper()
@@ -501,28 +457,40 @@ def get_log_lines(filename):
         sys.exit(1)
 
 
-def run(args=None):
-    config = load_application_config()
+def read_log(log_filepath):
+    log_lines = []
+    
+    try:
+        with open(log_filepath, "r", encoding=CONFIG_ENCODING) as file:
+            log_lines = [line.strip() for line in file if line.strip()]
+            
+    except FileNotFoundError:
+        logging.critical(f"Log file '{log_filepath}' does not exist.")
+        print(f"Log file '{log_filepath}' does not exist.")
+        sys.exit(1)
+        
+    return log_lines
 
-    parser = build_parser(default_log_file=config["log_file"])
+
+def run(args=None):
+    display_settings, log_filename = load_config_regex()
+
+    parser = build_parser(default_log_file=log_filename)
 
     parsed_args = parser.parse_args(args)
 
-    configure_logging(parsed_args.log_level)
-
     logging.info("Start of log processing")
+    
+    data = read_log(log_filename)
 
-    lines = get_log_lines(parsed_args.filename)
-    data = read_log(lines)
+#    display_log(data)
+#    display_statistics(data)
+#    print_html_entries(data)
 
-    display_log(data)
-    display_statistics(data)
-    print_html_entries(data)
-
-    print_requests_from_config_ip(
-        data,
-        config["ip_address"]
-    )
+#    print_requests_from_config_ip(
+#        data,
+#        config["ip_address"]
+#    )
 
     logging.info("Finish of log processing")
 

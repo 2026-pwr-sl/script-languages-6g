@@ -457,19 +457,67 @@ def get_log_lines(filename):
         sys.exit(1)
 
 
-def read_log(log_filepath):
-    log_lines = []
+def load_config_regex():
+    path = CONFIG_FILE
     
+    # Default values
+    display_settings = {
+        "lines_per_page": "10",
+        "separator": " : ",
+        "browser": "Chrome"
+    }
+    
+    log_filename = "../log_timestamped.txt"
+    
+    logging.basicConfig(
+        filename="processing_log.txt",
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        force=True
+    )
+    
+    current_section = None
+
     try:
-        with open(log_filepath, "r", encoding=CONFIG_ENCODING) as file:
-            log_lines = [line.strip() for line in file if line.strip()]
-            
+        with open(path, "r", encoding=CONFIG_ENCODING) as file:
+            for line in file:
+                line = line.strip()
+                
+                if not line:
+                    continue
+                    
+                section_match = re.match(r"^\[(.*)\]$", line)
+                if section_match:
+                    current_section = section_match.group(1).strip()
+                    continue
+                    
+                param_match = re.match(r"^([^=]+)=(.*)$", line)
+                if param_match and current_section:
+                    parameter = param_match.group(1).strip()
+                    value = param_match.group(2).strip()
+                    
+                    if current_section == "Display":
+                        display_settings[parameter] = value
+                        
+                    elif current_section == "LogFile" and parameter == "filename":
+                        log_filename = value
+                        
+                    elif current_section == "Config":
+                        if parameter == "log_level":
+                            logging.getLogger().setLevel(value.upper())
+                        elif parameter == "log_file":
+                            handler = logging.FileHandler(value)
+                            logging.getLogger().addHandler(handler)
+                        elif parameter == "log_format":
+                            formatter = logging.Formatter(value)
+                            for h in logging.getLogger().handlers:
+                                h.setFormatter(formatter)
+
     except FileNotFoundError:
-        logging.critical(f"Log file '{log_filepath}' does not exist.")
-        print(f"Log file '{log_filepath}' does not exist.")
+        print(f"Configuration file '{CONFIG_FILE}' is missing.")
         sys.exit(1)
-        
-    return log_lines
+    
+    return display_settings, log_filename
 
 
 def run(args=None):

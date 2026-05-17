@@ -29,7 +29,8 @@ LOG_LINE_PATTERN = re.compile(
     r"\[(?P<timestamp>[^\]]+)\]\s+"
     r'"(?P<request_header>[^"]+)"\s+'
     r"(?P<status>\d{3})\s+"
-    r"(?P<bytes_sent>\d+|-)\s*$"
+    r"(?P<bytes_sent>\d+|-)"
+    r'(?:\s+(?:"[^"]*"\s+)?"(?P<user_agent>[^"]*)")?\s*$'
 )
 REQUEST_HEADER_PATTERN = re.compile(
     r"^(?P<method>[A-Z]+)\s+"
@@ -40,14 +41,15 @@ REQUEST_HEADER_PATTERN = re.compile(
 
 class LogEntry:
     def __init__(
-            self,
-            ip=None,
-            timestamp=None,
-            method=None,
-            path="",
-            protocol=None,
-            status=0,
-            bytes_sent=0,
+        self,
+        ip=None,
+        timestamp=None,
+        method=None,
+        path="",
+        protocol=None,
+        status=0,
+        bytes_sent=0,
+        user_agent="",
     ):
         self.ip = IPv4Address(ip)
         self.timestamp = timestamp
@@ -56,6 +58,7 @@ class LogEntry:
         self.protocol = protocol
         self.status = status
         self.bytes_sent = bytes_sent
+        self.user_agent = user_agent
 
     @property
     def request_header(self):
@@ -149,6 +152,7 @@ def parse_log_line(line):
         request_match.group("protocol"),
         int(log_match.group("status")),
         bytes_sent,
+        log_match.group("user_agent") or "",
     )
 
 
@@ -491,6 +495,30 @@ def print_requests_from_subnet(entries, lines_per_page, input_func=input):
     return len(matching_entries)
 
 
+def requests_from_browser(entries, browser):
+    """Return requests issued by selected browser."""
+    selected_browser = browser.lower()
+    result = []
+
+    for entry in entries:
+        if selected_browser in entry.user_agent.lower():
+            result.append(entry)
+
+    return result
+
+
+def print_requests_from_browser(entries, browser):
+    """Print requests issued by selected browser."""
+    matching_entries = requests_from_browser(entries, browser)
+
+    print(f"Requests from browser {browser}: {len(matching_entries)}")
+
+    for entry in matching_entries:
+        print(entry)
+
+    return len(matching_entries)
+
+
 def print_requests_from_config_ip(data, ip_address):
     """Print all requests sent from the configured IP address."""
     target_ip = IPv4Address(ip_address)
@@ -652,6 +680,7 @@ def run(args=None):
 
     lines_per_page = int(display_settings["lines_per_page"])
     print_requests_from_subnet(data, lines_per_page)
+    print_requests_from_browser(data, display_settings["browser"])
 
 #    display_log(data)
 #    display_statistics(data)

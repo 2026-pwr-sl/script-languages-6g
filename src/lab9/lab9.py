@@ -121,31 +121,6 @@ def parse_line_to_logentry(line):
     return LogEntry(ip_address, timestamp, method, path, protocol, status, bytes_sent)
 
 
-def read_log(lines):
-    """Parse a list of log lines into LogEntry objects.
-    
-    Args:
-        lines: List of log line strings
-        
-    Returns:
-        List of LogEntry objects
-    """
-    entries = []
-
-    for line in lines:
-        line = line.strip()
-        if line:  # Skip empty lines
-            try:
-                entry = parse_line_to_logentry(line)
-                if entry:
-                    entries.append(entry)
-            except (ValueError, IndexError):
-                continue  # Skip malformed lines
-
-    logging.debug("Parsed %d log entries into list", len(entries))
-    return entries
-
-
 def build_parser(default_log_file):
     parser = argparse.ArgumentParser(
         description="Process web server logs from standard input."
@@ -429,30 +404,6 @@ def display_requests_between(data, start_time, end_time):
             print(entry)
 
 
-def load_application_config():
-    config_path = Path(CONFIG_FILE)
-    app_config = DEFAULT_CONFIG.copy()
-
-    try:
-        with open(config_path, "r", encoding=CONFIG_ENCODING) as file:
-            loaded_config = json.load(file)
-
-        for key in app_config.keys():
-            if key not in loaded_config:
-                logging.info("Missing parameter '%s' in config file. Using default: %s", key, app_config[key])
-            else:
-                app_config[key] = loaded_config[key]
-
-    except FileNotFoundError:
-        logging.info("Configuration file does not exist.")
-
-    except json.JSONDecodeError:
-        logging.error("Configuration file is not a valid JSON file.")
-        sys.exit(1)
-
-    return app_config
-
-
 def requests_by_method(entries, method):
     """Return all requests with the selected HTTP method."""
     selected_method = method.upper()
@@ -570,27 +521,24 @@ def load_config_regex():
 
 
 def run(args=None):
-    config = load_application_config()
+    display_settings, log_filename = load_config_regex()
 
-    parser = build_parser(default_log_file=config["log_file"])
+    parser = build_parser(default_log_file=log_filename)
 
     parsed_args = parser.parse_args(args)
 
-    configure_logging(parsed_args.log_level)
-
     logging.info("Start of log processing")
+    
+    data = read_log(log_filename)
 
-    lines = get_log_lines(parsed_args.filename)
-    data = read_log(lines)
+#    display_log(data)
+#    display_statistics(data)
+#    print_html_entries(data)
 
-    display_log(data)
-    display_statistics(data)
-    print_html_entries(data)
-
-    print_requests_from_config_ip(
-        data,
-        config["ip_address"]
-    )
+#    print_requests_from_config_ip(
+#        data,
+#        config["ip_address"]
+#    )
 
     logging.info("Finish of log processing")
 

@@ -16,9 +16,7 @@ import logging
 import re
 import sys
 from ipaddress import IPv4Address, IPv4Network
-import json
 from pathlib import Path
-
 
 CONFIG_FILE = Path(__file__).with_name("lab9.config")
 CONFIG_ENCODING = "utf-8"
@@ -41,15 +39,15 @@ REQUEST_HEADER_PATTERN = re.compile(
 
 class LogEntry:
     def __init__(
-        self,
-        ip=None,
-        timestamp=None,
-        method=None,
-        path="",
-        protocol=None,
-        status=0,
-        bytes_sent=0,
-        user_agent="",
+            self,
+            ip=None,
+            timestamp=None,
+            method=None,
+            path="",
+            protocol=None,
+            status=0,
+            bytes_sent=0,
+            user_agent="",
     ):
         self.ip = IPv4Address(ip)
         self.timestamp = timestamp
@@ -588,6 +586,17 @@ def print_large_responses(entries, minimum_bytes):
 
     return len(matching_entries)
 
+def print_total_bytes_for_request_type(entries, request_type_pattern, separator):
+    """Print request type and total bytes sent for matching HTTP request headers."""
+    header_pattern = re.compile(request_type_pattern)
+    total_bytes = 0
+
+    for entry in entries:
+        if header_pattern.search(entry.request_header):
+            total_bytes += entry.bytes_sent
+
+    print(f"{request_type_pattern}{separator}{total_bytes}")
+
 
 def get_log_lines(filename):
     try:
@@ -601,49 +610,50 @@ def get_log_lines(filename):
 
 def load_config_regex():
     path = CONFIG_FILE
-    
+
     # Default values
     display_settings = {
         "lines_per_page": "10",
         "separator": " : ",
         "browser": "Chrome"
     }
-    
+    filter_settings = {"request_type": "GET"}
+
     log_filename = "../log_timestamped.txt"
-    
+
     logging.basicConfig(
         filename="processing_log.txt",
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         force=True
     )
-    
+
     current_section = None
 
     try:
         with open(path, "r", encoding=CONFIG_ENCODING) as file:
             for line in file:
                 line = line.strip()
-                
+
                 if not line:
                     continue
-                    
+
                 section_match = re.match(r"^\[(.*)\]$", line)
                 if section_match:
                     current_section = section_match.group(1).strip()
                     continue
-                    
+
                 param_match = re.match(r"^([^=]+)=(.*)$", line)
                 if param_match and current_section:
                     parameter = param_match.group(1).strip()
                     value = param_match.group(2).strip()
-                    
+
                     if current_section == "Display":
                         display_settings[parameter] = value
-                        
+
                     elif current_section == "LogFile" and parameter == "filename":
                         log_filename = value
-                        
+
                     elif current_section == "Config":
                         if parameter == "log_level":
                             logging.getLogger().setLevel(value.upper())
@@ -654,6 +664,8 @@ def load_config_regex():
                             formatter = logging.Formatter(value)
                             for h in logging.getLogger().handlers:
                                 h.setFormatter(formatter)
+                    elif current_section == "Filter":
+                        filter_settings[parameter] = value
 
     except FileNotFoundError:
         print(f"Configuration file '{CONFIG_FILE}' is missing.")
@@ -663,11 +675,11 @@ def load_config_regex():
     if not log_filename_path.is_absolute():
         log_filename = str((CONFIG_FILE.parent / log_filename_path).resolve())
 
-    return display_settings, log_filename
+    return display_settings, filter_settings, log_filename
 
 
 def run(args=None):
-    display_settings, log_filename = load_config_regex()
+    display_settings, filter_settings, log_filename = load_config_regex()
 
     parser = build_parser(default_log_file=log_filename)
 
@@ -681,15 +693,20 @@ def run(args=None):
     lines_per_page = int(display_settings["lines_per_page"])
     print_requests_from_subnet(data, lines_per_page)
     print_requests_from_browser(data, display_settings["browser"])
+    print_total_bytes_for_request_type(
+        data,
+        filter_settings["request_type"],
+        display_settings["separator"],
+    )
 
-#    display_log(data)
-#    display_statistics(data)
-#    print_html_entries(data)
+    #    display_log(data)
+    #    display_statistics(data)
+    #    print_html_entries(data)
 
-#    print_requests_from_config_ip(
-#        data,
-#        config["ip_address"]
-#    )
+    #    print_requests_from_config_ip(
+    #        data,
+    #        config["ip_address"]
+    #    )
 
     logging.info("Finish of log processing")
 

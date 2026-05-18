@@ -1,0 +1,8 @@
+.\src\lab9\lab9.py:104:80: E501 line too long (86 > 79 characters)
+.\src\lab9\lab9.py:550:80: E501 line too long (82 > 79 characters)
+.\src\lab9\lab9.py:553:80: E501 line too long (82 > 79 characters)
+.\src\lab9\lab9.py:582:80: E501 line too long (83 > 79 characters)
+.\src\lab9\lab9.py:589:1: E302 expected 2 blank lines, found 1
+.\src\lab9\lab9.py:589:80: E501 line too long (81 > 79 characters)
+.\src\lab9\lab9.py:590:80: E501 line too long (84 > 79 characters)
+.\src\lab9\lab9.py:654:80: E501 line too long (82 > 79 characters)

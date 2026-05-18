@@ -101,7 +101,9 @@ def parse_timestamp(ts_string):
     ts_string = ts_string.strip()
     ts_string = ts_string.strip("[]")
 
-    date_part, time_part = ts_string.split(":")[0], ":".join(ts_string.split(":")[1:])
+    date_part, time_part = (
+        ts_string.split(":")[0],
+        ":".join(ts_string.split(":")[1:]))
 
     day, month_str, year = date_part.split("/")
     hour, minute, second_timezone = time_part.split(":")
@@ -545,12 +547,20 @@ def display_requests_between(data, start_time, end_time):
 
 
 def requests_by_method(entries, method):
-    """Return all requests with the selected HTTP method."""
+    """Return all requests with
+    the selected HTTP method."""
     selected_method = method.upper()
-    return [entry for entry in entries if entry.method.upper() == selected_method]
+    return [
+        entry for entry in entries
+        if entry.method.upper() == selected_method
+    ]
 
 
-def print_requests_with_method(entries, method, lines_per_page, input_func=input):
+def print_requests_with_method(
+        entries,
+        method,
+        lines_per_page,
+        input_func=input):
     """Print requests with the selected method and pause after each page."""
     if lines_per_page <= 0:
         raise ValueError("lines_per_page must be greater than zero")
@@ -576,18 +586,25 @@ def large_responses(entries, minimum_bytes):
 
 
 def print_large_responses(entries, minimum_bytes):
-    """Print requests controlled by custom min_bytes configuration value."""
+    """Print requests controlled by
+     custom min_bytes configuration value."""
     matching_entries = large_responses(entries, minimum_bytes)
 
-    print(f"Requests with at least {minimum_bytes} bytes: {len(matching_entries)}")
+    print(f"Requests with at least {minimum_bytes}"
+          f" bytes: {len(matching_entries)}")
 
     for entry in matching_entries:
         print(entry)
 
     return len(matching_entries)
 
-def print_total_bytes_for_request_type(entries, request_type_pattern, separator):
-    """Print request type and total bytes sent for matching HTTP request headers."""
+
+def print_total_bytes_for_request_type(
+        entries,
+        request_type_pattern,
+        separator):
+    """Print request type and total bytes sent
+     for matching HTTP request headers."""
     header_pattern = re.compile(request_type_pattern)
     total_bytes = 0
 
@@ -631,7 +648,7 @@ def load_config_regex():
     current_section = None
 
     try:
-        with open(path, "r", encoding=CONFIG_ENCODING) as file:
+        with (open(path, "r", encoding=CONFIG_ENCODING) as file):
             for line in file:
                 line = line.strip()
 
@@ -651,7 +668,8 @@ def load_config_regex():
                     if current_section == "Display":
                         display_settings[parameter] = value
 
-                    elif current_section == "LogFile" and parameter == "filename":
+                    elif (current_section == "LogFile"
+                          and parameter == "filename"):
                         log_filename = value
 
                     elif current_section == "Config":

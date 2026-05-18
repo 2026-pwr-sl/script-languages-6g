@@ -22,12 +22,15 @@ from pathlib import Path
 
 CONFIG_FILE = Path(__file__).with_name("lab9.config")
 CONFIG_ENCODING = "utf-8"
+STUDENT_INDEX = 284210
+SUBNET_IP = "185.0.0.0"
 LOG_LINE_PATTERN = re.compile(
     r"^(?P<ip>\d{1,3}(?:\.\d{1,3}){3})\s+\S+\s+\S+\s+"
     r"\[(?P<timestamp>[^\]]+)\]\s+"
     r'"(?P<request_header>[^"]+)"\s+'
     r"(?P<status>\d{3})\s+"
-    r"(?P<bytes_sent>\d+|-)\s*$"
+    r"(?P<bytes_sent>\d+|-)"
+    r'(?:\s+(?:"[^"]*"\s+)?"(?P<user_agent>[^"]*)")?\s*$'
 )
 REQUEST_HEADER_PATTERN = re.compile(
     r"^(?P<method>[A-Z]+)\s+"
@@ -38,14 +41,15 @@ REQUEST_HEADER_PATTERN = re.compile(
 
 class LogEntry:
     def __init__(
-            self,
-            ip=None,
-            timestamp=None,
-            method=None,
-            path="",
-            protocol=None,
-            status=0,
-            bytes_sent=0,
+        self,
+        ip=None,
+        timestamp=None,
+        method=None,
+        path="",
+        protocol=None,
+        status=0,
+        bytes_sent=0,
+        user_agent="",
     ):
         self.ip = IPv4Address(ip)
         self.timestamp = timestamp
@@ -54,6 +58,7 @@ class LogEntry:
         self.protocol = protocol
         self.status = status
         self.bytes_sent = bytes_sent
+        self.user_agent = user_agent
 
     @property
     def request_header(self):
@@ -147,6 +152,7 @@ def parse_log_line(line):
         request_match.group("protocol"),
         int(log_match.group("status")),
         bytes_sent,
+        log_match.group("user_agent") or "",
     )
 
 
@@ -436,6 +442,83 @@ def entries_from_network(data, network_text):
     return result
 
 
+def subnet_mask_length(student_index=STUDENT_INDEX):
+    """Return subnet mask length calculated from student index."""
+    return student_index % 16 + 8
+
+
+def is_ip_in_subnet(ip_address, subnet_ip=SUBNET_IP):
+    """Check if IP address belongs to the hard-coded subnet."""
+    network_text = f"{subnet_ip}/{subnet_mask_length()}"
+    network = IPv4Network(network_text, strict=False)
+    return IPv4Address(ip_address) in network
+
+
+def requests_from_subnet(entries):
+    """Return requests sent from the hard-coded subnet."""
+    result = []
+
+    for entry in entries:
+        if is_ip_in_subnet(entry.ip):
+            result.append(entry)
+
+    return result
+
+
+def print_entries_with_pagination(entries, lines_per_page, input_func=input):
+    """Print entries and pause after each page."""
+    if lines_per_page <= 0:
+        raise ValueError("lines_per_page must be greater than zero")
+
+    for index, entry in enumerate(entries, start=1):
+        print(entry)
+
+        if index % lines_per_page == 0 and index < len(entries):
+            input_func("Press Enter to display more...")
+
+
+def print_requests_from_subnet(entries, lines_per_page, input_func=input):
+    """Print all requests sent from the hard-coded subnet."""
+    matching_entries = requests_from_subnet(entries)
+
+    print(
+        "Requests from subnet "
+        f"{SUBNET_IP}/{subnet_mask_length()}: {len(matching_entries)}"
+    )
+
+    print_entries_with_pagination(
+        matching_entries,
+        lines_per_page,
+        input_func,
+    )
+
+    return len(matching_entries)
+
+
+def requests_from_browser(entries, browser):
+    """Return requests issued by selected browser."""
+    selected_browser = browser.lower()
+    result = []
+
+    for entry in entries:
+        if selected_browser in entry.user_agent.lower():
+            result.append(entry)
+
+    return result
+
+
+def print_requests_from_browser(entries, browser):
+    """Print requests issued by selected browser."""
+    matching_entries = requests_from_browser(entries, browser)
+
+    print(f"Requests from browser {browser}: {len(matching_entries)}")
+
+    for entry in matching_entries:
+        print(entry)
+
+    return len(matching_entries)
+
+
 def print_requests_from_config_ip(data, ip_address):
     """Print all requests sent from the configured IP address."""
     target_ip = IPv4Address(ip_address)
@@ -594,6 +677,10 @@ def run(args=None):
 
     lines = get_log_lines(parsed_args.filename)
     data = read_log(lines)
+
+    lines_per_page = int(display_settings["lines_per_page"])
+    print_requests_from_subnet(data, lines_per_page)
+    print_requests_from_browser(data, display_settings["browser"])
 
 #    display_log(data)
 #    display_statistics(data)

@@ -80,3 +80,8 @@ and the development of a simple Python program as a team.
 .\src\lab9\lab9.py:590:80: E501 line too long (84 > 79 characters)
 .\src\lab9\lab9.py:654:80: E501 line too long (82 > 79 characters)
 ```
+
+## Dataset
+- **Dataset name:** Laptop Specs and Price Dataset
+- **Dataset link:** https://www.kaggle.com/datasets/nabihazahid/laptop-details-dataset
+- **Description:** The dataset contains laptop specification and price information.

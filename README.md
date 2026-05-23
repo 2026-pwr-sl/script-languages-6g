@@ -83,5 +83,6 @@ and the development of a simple Python program as a team.
 
 ## Dataset
 - **Dataset name:** Laptop Specs and Price Dataset
+- **Dataset location:** data/video-game-sales.csv
 - **Dataset link:** https://www.kaggle.com/datasets/nabihazahid/laptop-details-dataset
 - **Description:** The dataset contains laptop specification and price information.

@@ -8,26 +8,11 @@ from xml.sax.saxutils import escape
 
 class SalesData:
     def __init__(
-            self,
-            transaction_id,
-            customer_id,
-            age_group,
-            gender,
-            city,
-            customer_segment,
-            product_id,
-            product_category,
-            original_price,
-            discount_pct,
-            final_price,
-            quantity,
-            purchase_amount,
-            payment_method,
-            purchase_date,
-            purchase_hour,
-            is_weekend,
-            is_black_friday,
-    ):
+            self, transaction_id, customer_id, age_group, gender, city,
+            customer_segment, product_id, product_category, original_price,
+            discount_pct, final_price, quantity, purchase_amount,
+            payment_method, purchase_date, purchase_hour, is_weekend,
+            is_black_friday):
         self.transaction_id = transaction_id
         self.customer_id = customer_id
         self.age_group = age_group
@@ -64,8 +49,7 @@ def load_csv_dataset(file_path):
                 mode="r",
                 encoding="utf-8",
                 errors="ignore",
-                newline="",
-        ) as file:
+                newline="") as file:
             csv_reader = csv.DictReader(file)
 
             for row in csv_reader:
@@ -88,7 +72,7 @@ def load_csv_dataset(file_path):
                         purchase_date=row["purchase_date"],
                         purchase_hour=row["purchase_hour"],
                         is_weekend=row["is_weekend"],
-                        is_black_friday=row["is_black_friday"],
+                        is_black_friday=row["is_black_friday"]
                     )
                     data.append(record)
                 except (ValueError, KeyError):
@@ -101,38 +85,20 @@ def load_csv_dataset(file_path):
     return data
 
 
-def summarize_sales(data):
-    """Return an overall sales summary for the dataset."""
-    total_purchase_amount = 0.0
-    total_quantity = 0
-
-    for record in data:
-        total_purchase_amount += record.purchase_amount
-        total_quantity += record.quantity
-
-    return {
-        "total_records": len(data),
-        "total_quantity": total_quantity,
-        "total_purchase_amount": total_purchase_amount,
-    }
-
-
 def aggregate_purchase_amount_by_category(data):
-    """Group purchase amount totals by product category."""
     category_totals = {}
 
     for record in data:
-        current_total = category_totals.get(record.product_category, 0.0)
+        previous_total = category_totals.get(record.product_category, 0.0)
         category_totals[record.product_category] = (
-            current_total + record.purchase_amount
+            previous_total + record.purchase_amount
         )
 
     return category_totals
 
 
 def calculate_average_purchase_amount(data):
-    """Calculate average transaction purchase amount."""
-    if not data:
+    if len(data) == 0:
         return 0.0
 
     total_purchase_amount = 0.0
@@ -143,24 +109,7 @@ def calculate_average_purchase_amount(data):
     return total_purchase_amount / len(data)
 
 
-def calculate_sales_statistics(data):
-    """Return statistical calculations for the sales dataset."""
-    return {
-        "average_purchase_amount": calculate_average_purchase_amount(data),
-    }
-
-
-def format_summary(summary):
-    return (
-        "Summary result\n"
-        f"Total records: {summary['total_records']}\n"
-        f"Total quantity sold: {summary['total_quantity']}\n"
-        "Total purchase amount: "
-        f"${summary['total_purchase_amount']:.2f}"
-    )
-
-
-def _column_name(column_number):
+def column_name(column_number):
     name = ""
 
     while column_number > 0:
@@ -170,25 +119,24 @@ def _column_name(column_number):
     return name
 
 
-def _cell_xml(row_number, column_number, value, style_id=0):
-    reference = f"{_column_name(column_number)}{row_number}"
-    style_attribute = f' s="{style_id}"' if style_id else ""
+def cell_xml(row_number, column_number, value, style_id=0):
+    reference = f"{column_name(column_number)}{row_number}"
+    style = f' s="{style_id}"' if style_id else ""
 
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         if isinstance(value, float):
             value = f"{value:.2f}"
 
-        return f'<c r="{reference}"{style_attribute}><v>{value}</v></c>'
+        return f'<c r="{reference}"{style}><v>{value}</v></c>'
 
     return (
-        f'<c r="{reference}" t="inlineStr"{style_attribute}>'
+        f'<c r="{reference}" t="inlineStr"{style}>'
         f"<is><t>{escape(str(value))}</t></is></c>"
     )
 
 
-def _sheet_xml(rows, currency_columns=None):
-    currency_columns = currency_columns or set()
-    row_xml = []
+def sheet_xml(rows, money_column=None):
+    row_values = []
 
     for row_number, row in enumerate(rows, start=1):
         cells = []
@@ -198,33 +146,30 @@ def _sheet_xml(rows, currency_columns=None):
 
             if row_number == 1:
                 style_id = 1
-            elif column_number in currency_columns:
+            elif column_number == money_column:
                 style_id = 2
 
-            cells.append(
-                _cell_xml(row_number, column_number, value, style_id)
-            )
+            cells.append(cell_xml(row_number, column_number, value, style_id))
 
-        row_xml.append(f'<row r="{row_number}">{"".join(cells)}</row>')
+        row_values.append(f'<row r="{row_number}">{"".join(cells)}</row>')
 
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<worksheet xmlns="http://schemas.openxmlformats.org/'
         'spreadsheetml/2006/main">'
-        '<cols><col min="1" max="1" width="28" customWidth="1"/>'
-        '<col min="2" max="2" width="18" customWidth="1"/></cols>'
-        f'<sheetData>{"".join(row_xml)}</sheetData>'
+        '<cols><col min="1" max="1" width="32" customWidth="1"/>'
+        '<col min="2" max="2" width="20" customWidth="1"/></cols>'
+        f'<sheetData>{"".join(row_values)}</sheetData>'
         '</worksheet>'
     )
 
 
-def _workbook_xml(sheet_names):
+def workbook_xml(sheet_names):
     sheets = []
 
     for index, name in enumerate(sheet_names, start=1):
-        escaped_name = escape(name, {'"': "&quot;"})
         sheets.append(
-            f'<sheet name="{escaped_name}" sheetId="{index}" '
+            f'<sheet name="{escape(name)}" sheetId="{index}" '
             f'r:id="rId{index}"/>'
         )
 
@@ -238,7 +183,7 @@ def _workbook_xml(sheet_names):
     )
 
 
-def _workbook_relationships_xml(sheet_count):
+def workbook_relationships_xml(sheet_count):
     relationships = []
 
     for index in range(1, sheet_count + 1):
@@ -264,7 +209,7 @@ def _workbook_relationships_xml(sheet_count):
     )
 
 
-def _content_types_xml(sheet_count):
+def content_types_xml(sheet_count):
     worksheets = []
 
     for index in range(1, sheet_count + 1):
@@ -290,7 +235,7 @@ def _content_types_xml(sheet_count):
     )
 
 
-def _styles_xml():
+def styles_xml():
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<styleSheet xmlns="http://schemas.openxmlformats.org/'
@@ -320,41 +265,25 @@ def _styles_xml():
     )
 
 
-def write_excel_report(summary, category_totals, statistics, output_path):
-    summary_rows = [
-        ["Metric", "Value"],
-        ["Total records", summary["total_records"]],
-        ["Total quantity sold", summary["total_quantity"]],
-        [
-            "Total purchase amount",
-            f"${summary['total_purchase_amount']:.2f}",
-        ],
-    ]
-    category_rows = [["Product category", "Purchase amount"]]
+def save_excel_report(category_totals, average_purchase_amount, output_path):
+    aggregation_rows = [["Product category", "Purchase amount"]]
 
-    for category, total in sorted(
-            category_totals.items(),
-            key=lambda item: item[1],
-            reverse=True,
-    ):
-        category_rows.append([category, total])
+    for category, total in sorted(category_totals.items()):
+        aggregation_rows.append([category, total])
 
     statistics_rows = [
         ["Statistic", "Value"],
-        [
-            "Average purchase amount",
-            statistics["average_purchase_amount"],
-        ],
+        ["Average purchase amount", average_purchase_amount],
     ]
-    sheet_names = ["Summary", "Category totals", "Statistics"]
+
+    sheet_names = ["Aggregation", "Statistics"]
     sheet_contents = [
-        _sheet_xml(summary_rows),
-        _sheet_xml(category_rows, currency_columns={2}),
-        _sheet_xml(statistics_rows, currency_columns={2}),
+        sheet_xml(aggregation_rows, money_column=2),
+        sheet_xml(statistics_rows, money_column=2),
     ]
 
     with ZipFile(output_path, "w", ZIP_DEFLATED) as workbook:
-        workbook.writestr("[Content_Types].xml", _content_types_xml(3))
+        workbook.writestr("[Content_Types].xml", content_types_xml(2))
         workbook.writestr(
             "_rels/.rels",
             '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -364,35 +293,32 @@ def write_excel_report(summary, category_totals, statistics, output_path):
             '2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
             '</Relationships>',
         )
-        workbook.writestr("xl/workbook.xml", _workbook_xml(sheet_names))
+        workbook.writestr("xl/workbook.xml", workbook_xml(sheet_names))
         workbook.writestr(
             "xl/_rels/workbook.xml.rels",
-            _workbook_relationships_xml(len(sheet_names)),
+            workbook_relationships_xml(len(sheet_names)),
         )
-        workbook.writestr("xl/styles.xml", _styles_xml())
+        workbook.writestr("xl/styles.xml", styles_xml())
 
-        for index, contents in enumerate(sheet_contents, start=1):
-            workbook.writestr(f"xl/worksheets/sheet{index}.xml", contents)
+        for index, content in enumerate(sheet_contents, start=1):
+            workbook.writestr(f"xl/worksheets/sheet{index}.xml", content)
 
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description=(
-            "Analyze Black Friday sales data from a CSV file. "
-            "Without -o, only the summary result is printed."
-        )
+        description="Analyze a CSV dataset."
     )
 
     parser.add_argument(
         "dataset",
         type=str,
-        help="Path to the CSV dataset file.",
+        help="Path to the dataset file."
     )
     parser.add_argument(
         "-o",
         "--output",
         type=str,
-        help="Optional path to the generated Excel .xlsx report.",
+        help="Path to the Excel report file."
     )
 
     return parser
@@ -423,15 +349,8 @@ def validate_output_argument(output_arg):
 
     if output_path.suffix.lower() != ".xlsx":
         print(
-            f"Error: The output file '{output_arg}' has an invalid "
-            "extension. Please provide a .xlsx file."
-        )
-        sys.exit(1)
-
-    if output_path.parent != Path(".") and not output_path.parent.exists():
-        print(
-            f"Error: The output directory '{output_path.parent}' "
-            "could not be found."
+            f"Error: The file '{output_arg}' has an invalid extension. "
+            "Please provide a .xlsx file."
         )
         sys.exit(1)
 
@@ -440,22 +359,24 @@ def validate_output_argument(output_arg):
 
 def main():
     parser = build_parser()
+
     args = parser.parse_args()
 
     dataset_path = validate_dataset_argument(args.dataset)
     output_path = validate_output_argument(args.output)
+
     data = load_csv_dataset(dataset_path)
 
-    summary = summarize_sales(data)
-    category_totals = aggregate_purchase_amount_by_category(data)
-    statistics = calculate_sales_statistics(data)
+    if output_path is not None:
+        category_totals = aggregate_purchase_amount_by_category(data)
+        average_purchase_amount = calculate_average_purchase_amount(data)
 
-    if output_path is None:
-        print(format_summary(summary))
-        return
-
-    write_excel_report(summary, category_totals, statistics, output_path)
-    print(f"Excel report saved to {output_path}")
+        save_excel_report(
+            category_totals,
+            average_purchase_amount,
+            output_path,
+        )
+        print(f"Excel report saved to {output_path}")
 
 
 if __name__ == "__main__":

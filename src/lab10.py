@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import csv
 import sys
 import os
@@ -93,7 +93,7 @@ def aggregate_purchase_amount_by_category(data):
     for record in data:
         previous_total = category_totals.get(record.product_category, 0.0)
         category_totals[record.product_category] = (
-            previous_total + record.purchase_amount
+                previous_total + record.purchase_amount
         )
 
     return category_totals
@@ -142,8 +142,8 @@ def filter_records_for_statistics(data, config):
 
     for record in data:
         category_matches = (
-            selected_category == "all"
-            or record.product_category.lower() == selected_category
+                selected_category == "all"
+                or record.product_category.lower() == selected_category
         )
         quantity_matches = record.quantity >= config["min_quantity"]
 
@@ -340,7 +340,11 @@ def styles_xml():
     )
 
 
-def save_excel_report(category_totals, average_purchase_amount, output_path):
+def save_excel_report(
+        category_totals,
+        average_purchase_amount,
+        summary,
+        output_path):
     aggregation_rows = [["Product category", "Purchase amount"]]
 
     for category, total in sorted(category_totals.items()):
@@ -351,14 +355,23 @@ def save_excel_report(category_totals, average_purchase_amount, output_path):
         ["Average purchase amount", average_purchase_amount],
     ]
 
-    sheet_names = ["Aggregation", "Statistics"]
+    summary_rows = [
+        ["Metric", "Value"],
+        ["Total records", summary["total_records"]],
+        ["Total quantity sold", summary["total_quantity"]],
+        ["Total purchase amount", summary["total_purchase_amount"]],
+        ["Black Friday records", summary["black_friday_records"]],
+    ]
+
+    sheet_names = ["Aggregation", "Statistics", "Summary"]
     sheet_contents = [
         sheet_xml(aggregation_rows, money_column=2),
         sheet_xml(statistics_rows, money_column=2),
+        sheet_xml(summary_rows, money_column=2),
     ]
 
     with ZipFile(output_path, "w", ZIP_DEFLATED) as workbook:
-        workbook.writestr("[Content_Types].xml", content_types_xml(2))
+        workbook.writestr("[Content_Types].xml", content_types_xml(3))
         workbook.writestr(
             "_rels/.rels",
             '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -455,6 +468,7 @@ def main():
     save_excel_report(
         category_totals,
         average_purchase_amount,
+        summary,
         output_path,
     )
     print(f"Excel report saved to {output_path}")

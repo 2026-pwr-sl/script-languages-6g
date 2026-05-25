@@ -109,6 +109,37 @@ def calculate_average_purchase_amount(data):
     return total_purchase_amount / len(data)
 
 
+def build_summary(data):
+    total_records = len(data)
+    total_quantity = 0
+    total_purchase_amount = 0.0
+    black_friday_records = 0
+
+    for record in data:
+        total_quantity += record.quantity
+        total_purchase_amount += record.purchase_amount
+
+        if record.is_black_friday:
+            black_friday_records += 1
+
+    return {
+        "total_records": total_records,
+        "total_quantity": total_quantity,
+        "total_purchase_amount": total_purchase_amount,
+        "black_friday_records": black_friday_records,
+    }
+
+
+def format_summary(summary):
+    return (
+        "Sales summary\n"
+        f"Total records: {summary['total_records']}\n"
+        f"Total quantity sold: {summary['total_quantity']}\n"
+        f"Total purchase amount: {summary['total_purchase_amount']:.2f}\n"
+        f"Black Friday records: {summary['black_friday_records']}"
+    )
+
+
 def column_name(column_number):
     name = ""
 
@@ -366,17 +397,20 @@ def main():
     output_path = validate_output_argument(args.output)
 
     data = load_csv_dataset(dataset_path)
+    summary = build_summary(data)
 
-    if output_path is not None:
-        category_totals = aggregate_purchase_amount_by_category(data)
-        average_purchase_amount = calculate_average_purchase_amount(data)
+    if output_path is None:
+        print(format_summary(summary))
+        return
 
-        save_excel_report(
-            category_totals,
-            average_purchase_amount,
-            output_path,
-        )
-        print(f"Excel report saved to {output_path}")
+    category_totals = aggregate_purchase_amount_by_category(data)
+    average_purchase_amount = calculate_average_purchase_amount(data)
+    save_excel_report(
+        category_totals,
+        average_purchase_amount,
+        output_path,
+    )
+    print(f"Excel report saved to {output_path}")
 
 
 if __name__ == "__main__":

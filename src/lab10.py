@@ -1,9 +1,11 @@
 import argparse
 import csv
 import sys
+import os
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 from xml.sax.saxutils import escape
+from dotenv import load_dotenv
 
 
 class SalesData:
@@ -107,6 +109,79 @@ def calculate_average_purchase_amount(data):
         total_purchase_amount += record.purchase_amount
 
     return total_purchase_amount / len(data)
+
+
+def get_statistical_config():
+    load_dotenv()
+
+    category = os.getenv("LAB10_STAT_CATEGORY", "ALL").strip()
+    min_quantity_text = os.getenv("LAB10_MIN_QUANTITY", "1").strip()
+
+    if category == "":
+        category = "ALL"
+
+    try:
+        min_quantity = int(min_quantity_text)
+    except ValueError:
+        print("Error: LAB10_MIN_QUANTITY must be an integer.")
+        sys.exit(1)
+
+    if min_quantity < 0:
+        print("Error: LAB10_MIN_QUANTITY cannot be negative.")
+        sys.exit(1)
+
+    return {
+        "category": category,
+        "min_quantity": min_quantity,
+    }
+
+
+def filter_records_for_statistics(data, config):
+    filtered_data = []
+    selected_category = config["category"].lower()
+
+    for record in data:
+        category_matches = (
+            selected_category == "all"
+            or record.product_category.lower() == selected_category
+        )
+        quantity_matches = record.quantity >= config["min_quantity"]
+
+        if category_matches and quantity_matches:
+            filtered_data.append(record)
+
+    return filtered_data
+
+
+def build_summary(data):
+    total_records = len(data)
+    total_quantity = 0
+    total_purchase_amount = 0.0
+    black_friday_records = 0
+
+    for record in data:
+        total_quantity += record.quantity
+        total_purchase_amount += record.purchase_amount
+
+        if record.is_black_friday:
+            black_friday_records += 1
+
+    return {
+        "total_records": total_records,
+        "total_quantity": total_quantity,
+        "total_purchase_amount": total_purchase_amount,
+        "black_friday_records": black_friday_records,
+    }
+
+
+def format_summary(summary):
+    return (
+        "Sales summary\n"
+        f"Total records: {summary['total_records']}\n"
+        f"Total quantity sold: {summary['total_quantity']}\n"
+        f"Total purchase amount: {summary['total_purchase_amount']:.2f}\n"
+        f"Black Friday records: {summary['black_friday_records']}"
+    )
 
 
 def column_name(column_number):
@@ -366,17 +441,23 @@ def main():
     output_path = validate_output_argument(args.output)
 
     data = load_csv_dataset(dataset_path)
+    summary = build_summary(data)
 
-    if output_path is not None:
-        category_totals = aggregate_purchase_amount_by_category(data)
-        average_purchase_amount = calculate_average_purchase_amount(data)
+    statistical_config = get_statistical_config()
+    statistical_data = filter_records_for_statistics(data, statistical_config)
 
-        save_excel_report(
-            category_totals,
-            average_purchase_amount,
-            output_path,
-        )
-        print(f"Excel report saved to {output_path}")
+    if output_path is None:
+        print(format_summary(summary))
+        return
+
+    category_totals = aggregate_purchase_amount_by_category(data)
+    average_purchase_amount = calculate_average_purchase_amount(statistical_data)
+    save_excel_report(
+        category_totals,
+        average_purchase_amount,
+        output_path,
+    )
+    print(f"Excel report saved to {output_path}")
 
 
 if __name__ == "__main__":

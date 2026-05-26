@@ -52,6 +52,11 @@ python3 src/main.py --greet Efran
 python3 tests/test_main.py
 ```
 
+## Dataset
+  Name: Black Friday Sales
+  Link: https://www.kaggle.com/datasets/noopurbhatt/retail-black-friday-sales-dataset
+  Description: Data of retail transcations during Black Friday sales.
+
 ## Lab10 Environment Variables
 
 The Lab10 CSV analysis uses environment variables loaded from a `.env` file with the `python-dotenv` module.

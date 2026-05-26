@@ -53,9 +53,9 @@ python3 tests/test_main.py
 ```
 
 ## Dataset
-  Name: Black Friday Sales
-  Link: https://www.kaggle.com/datasets/noopurbhatt/retail-black-friday-sales-dataset
-  Description: Data of retail transcations during Black Friday sales.
+- Name: Black Friday Sales
+- Link: https://www.kaggle.com/datasets/noopurbhatt/retail-black-friday-sales-dataset
+- Description: Data of retail transcations during Black Friday sales.
 
 ## Lab10 Environment Variables
 

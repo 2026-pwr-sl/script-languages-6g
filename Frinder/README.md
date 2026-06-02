@@ -1,6 +1,6 @@
-# Fridger
+# Frinder
 
-### Fridger is an application that matches  ingredients user already has and what recipies can they cook based on those.
+### Frinder is an application that matches  ingredients user already has and what recipies can they cook based on those.
 
 
 ## Techstack

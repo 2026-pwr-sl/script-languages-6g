@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Frinder</h1>
+<p>Enter ingredients and get recipe ideas.</p>
+
+<form action="{{ url_for('recipes') }}" method="POST">
+  <textarea name="ingredients" placeholder="eggs, milk, flour"></textarea>
+  <button type="submit">Find Recipes</button>
+</form>
+{% endblock %}

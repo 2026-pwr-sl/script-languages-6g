@@ -1,0 +1,40 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f7fb;
+}
+
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 14px;
+}
+
+.recipe-card {
+  background: white;
+  padding: 16px;
+  margin-top: 16px;
+  border-radius: 10px;
+}
+
+.flash-messages {
+  list-style: none;
+  padding: 0;
+}
+
+.flash-messages .error {
+  background: #fee2e2;
+  padding: 10px;
+}

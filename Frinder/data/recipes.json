@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Pancakes",
+    "ingredients": ["flour", "milk", "eggs", "sugar", "butter"],
+    "instructions": "Mix and cook on a pan.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Omelette",
+    "ingredients": ["eggs", "milk", "cheese"],
+    "instructions": "Beat eggs and cook with cheese.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  }
+]

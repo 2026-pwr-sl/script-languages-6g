@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Recipe Suggestions</h1>
+
+<h2>Your Ingredients</h2>
+<ul>
+  {% for ingredient in user_ingredients %}
+    <li>{{ ingredient }}</li>
+  {% endfor %}
+</ul>
+
+{% for recipe in suggestions %}
+  <div class="recipe-card">
+    <h3>{{ recipe.name }}</h3>
+    <p><strong>Match:</strong> {{ recipe.match_score }}%</p>
+    <p><strong>Available:</strong> {{ recipe.available_ingredients | join(', ') }}</p>
+    <p><strong>Missing:</strong> {{ recipe.missing_ingredients | join(', ') }}</p>
+    <p><strong>Time:</strong> {{ recipe.cooking_time }} minutes</p>
+    <p><strong>Difficulty:</strong> {{ recipe.difficulty }}</p>
+    <p>{{ recipe.instructions }}</p>
+  </div>
+{% endfor %}
+{% endblock %}

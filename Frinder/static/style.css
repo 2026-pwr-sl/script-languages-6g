@@ -38,3 +38,43 @@ button {
   background: #fee2e2;
   padding: 10px;
 }
+
+.recipe-card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-top: 5px solid #1f4f46;
+}
+
+.recipe-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.recipe-card__title {
+  margin: 0;
+}
+
+.recipe-card__badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.recipe-card__section {
+  margin-top: 14px;
+}
+
+.recipe-card__list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.recipe-card__actions {
+  margin-top: 16px;
+}

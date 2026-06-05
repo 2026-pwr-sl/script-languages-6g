@@ -12,13 +12,42 @@
 
 {% for recipe in suggestions %}
   <div class="recipe-card">
-    <h3>{{ recipe.name }}</h3>
-    <p><strong>Match:</strong> {{ recipe.match_score }}%</p>
-    <p><strong>Available:</strong> {{ recipe.available_ingredients | join(', ') }}</p>
-    <p><strong>Missing:</strong> {{ recipe.missing_ingredients | join(', ') }}</p>
-    <p><strong>Time:</strong> {{ recipe.cooking_time }} minutes</p>
-    <p><strong>Difficulty:</strong> {{ recipe.difficulty }}</p>
+  <div class="recipe-card__top">
+    <h3 class="recipe-card__title">{{ recipe.name }}</h3>
+    <span class="recipe-card__badge">{{ recipe.match_score }}% match</span>
+  </div>
+
+  <div class="recipe-card__meta">
+    <span>{{ recipe.cooking_time }} minutes</span>
+    <span>{{ recipe.difficulty }}</span>
+  </div>
+
+  <div class="recipe-card__section">
+    <h4>Available ingredients</h4>
+    <ul class="recipe-card__list">
+      {% for item in recipe.available_ingredients %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="recipe-card__section">
+    <h4>Missing ingredients</h4>
+    <ul class="recipe-card__list">
+      {% for item in recipe.missing_ingredients %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="recipe-card__section">
+    <h4>Instructions</h4>
     <p>{{ recipe.instructions }}</p>
   </div>
+
+  <div class="recipe-card__actions">
+    <a href="#">Add to Favorites</a>
+  </div>
+</div>
 {% endfor %}
 {% endblock %}

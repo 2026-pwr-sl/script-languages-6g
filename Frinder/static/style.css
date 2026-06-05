@@ -81,8 +81,7 @@ button {
 
 .navbar {
   background-color: #0C9961;
-  padding: 15px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0 0 5px;
 }
 
 .nav-container {
@@ -92,13 +91,6 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.nav-logo {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
 }
 
 .nav-links {
@@ -111,12 +103,14 @@ button {
 
 .nav-links li {
   display: inline;
+  margin-top: 10px;
+  margin-left: 15px;
 }
 
 .nav-links a {
   color: white;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 500;
   transition: opacity 0.2s ease-in-out;
 }
@@ -125,10 +119,9 @@ button {
   opacity: 0.8;
 }
 
-.nav-brand {
+.nav-brand a {
   color: white;
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: bold;
   text-decoration: none;
-  letter-spacing: -0.5px;
 }

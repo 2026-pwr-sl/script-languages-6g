@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="summary-wrapper">
+  <h1 class="page-title">Inventory & Recipe Analytics</h1>
+
+  {% if empty %}
+    <div class="recipe-card">
+      <h2>No Ingredients found</h2>
+      <p>Go back to the home view dashboard page and supply ingredients to run summaries.</p>
+      <a href="{{ url_for('index') }}" class="btn-primary">Go to Dashboard</a>
+    </div>
+  {% else %}
+    
+  {% endif %}
+</div>
+{% endblock %}

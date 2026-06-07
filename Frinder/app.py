@@ -38,6 +38,13 @@ def recipes():
             suggestions=suggestions,
         )
     return render_template("recipes.html", user_ingredients=[], suggestions=[])
+
+
+@app.route("/all-recipes")
+def all_recipes():
+    recipes_list = load_recipes(RECIPES_FILE)
+    return render_template("all_recipes.html", recipes=recipes_list)
+
         
 @app.route("/summary")
 def summary():

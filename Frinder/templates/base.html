@@ -7,6 +7,19 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <a href="{{ url_for('index') }}">Frinder</a>
+    </div>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('recipes') }}">Recipes</a></li>
+        <li><a href="{{ url_for('summary') }}">Summary</a></li>
+        <li><a href="{{ url_for('favourites') }}">Favourites</a></li>
+        <li><a href="{{ url_for('shopping_list') }}">Shopping List</a></li>
+    </ul>
+  </nav>
+
   <main class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}

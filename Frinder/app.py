@@ -19,23 +19,39 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/recipes", methods=["POST"])
+@app.route("/recipes", methods=["GET", "POST"])
 def recipes():
-    user_ingredients = parse_ingredients(request.form.get("ingredients", ""))
+    if request.method == "POST":
+        user_ingredients = parse_ingredients(request.form.get("ingredients", ""))
 
-    if not user_ingredients:
-        flash("Please enter at least one ingredient.", "error")
-        return redirect(url_for("index"))
+        if not user_ingredients:
+            flash("Please enter at least one ingredient.", "error")
+            return redirect(url_for("index"))
 
-    save_user_ingredients(user_ingredients, USER_INGREDIENTS_FILE)
-    recipes_list = load_recipes(RECIPES_FILE)
-    suggestions = match_recipes(user_ingredients, recipes_list)
+        save_user_ingredients(user_ingredients, USER_INGREDIENTS_FILE)
+        recipes_list = load_recipes(RECIPES_FILE)
+        suggestions = match_recipes(user_ingredients, recipes_list)
 
-    return render_template(
-        "recipes.html",
-        user_ingredients=user_ingredients,
-        suggestions=suggestions,
-    )
+        return render_template(
+            "recipes.html",
+            user_ingredients=user_ingredients,
+            suggestions=suggestions,
+        )
+    return render_template("recipes.html", user_ingredients=[], suggestions=[])
+        
+@app.route("/summary")
+def summary():
+    return render_template("summary.html")
+
+
+@app.route("/favourites")
+def favourites():
+    return render_template("favourites.html")
+
+
+@app.route("/shopping-list")
+def shopping_list():
+    return render_template("shopping_list.html")
 
 
 if __name__ == "__main__":

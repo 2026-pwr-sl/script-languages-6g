@@ -125,3 +125,135 @@ button {
   font-weight: bold;
   text-decoration: none;
 }
+
+.container {
+    max-width: 1200px;
+}
+
+.recipes-banner {
+    background: linear-gradient(135deg, #0C9961, #1f4f46);
+    color: white;
+    padding: 28px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.recipes-banner__label {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.recipes-banner h1 {
+    margin: 0 0 10px;
+}
+
+.recipes-banner p {
+    margin: 0;
+}
+
+.selected-ingredients-box {
+    background: white;
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.selected-ingredients-box h2 {
+    margin-top: 0;
+}
+
+.ingredients-edit-form {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.ingredients-edit-form__textarea {
+    min-height: 54px;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    resize: vertical;
+    background: #f8fafc;
+}
+
+.ingredients-edit-form__button {
+    border: none;
+    border-radius: 999px;
+    background: #0C9961;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.ingredients-edit-form__button:hover {
+    opacity: 0.9;
+}
+
+.recipes-scroll {
+    max-height: 72vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.recipe-card {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.recipe-card__meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.recipe-card__actions a {
+    color: #0C9961;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.recipe-card__actions a:hover {
+    text-decoration: underline;
+}
+
+.recipes-empty-message {
+    grid-column: 1 / -1;
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+@media (max-width: 900px) {
+    .recipes-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .recipes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ingredients-edit-form {
+        flex-direction: column;
+    }
+
+    .ingredients-edit-form__button {
+        width: 100%;
+    }
+}

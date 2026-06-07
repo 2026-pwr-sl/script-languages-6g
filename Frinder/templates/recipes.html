@@ -1,53 +1,79 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Recipe Suggestions</h1>
 
-<h2>Your Ingredients</h2>
-<ul>
-  {% for ingredient in user_ingredients %}
-    <li>{{ ingredient }}</li>
-  {% endfor %}
-</ul>
+<section class="recipes-banner">
+    <p class="recipes-banner__label">Recipe Suggestions</p>
+    <h1>Recipes matched to your ingredients</h1>
+    <p>
+        Edit your ingredients below and refresh the suggestions.
+        Only recipes with a match above 0% are shown.
+    </p>
+</section>
 
-{% for recipe in suggestions %}
-  <div class="recipe-card">
-  <div class="recipe-card__top">
-    <h3 class="recipe-card__title">{{ recipe.name }}</h3>
-    <span class="recipe-card__badge">{{ recipe.match_score }}% match</span>
-  </div>
+<section class="selected-ingredients-box">
+    <h2>Your Ingredients</h2>
 
-  <div class="recipe-card__meta">
-    <span>{{ recipe.cooking_time }} minutes</span>
-    <span>{{ recipe.difficulty }}</span>
-  </div>
+    <form action="{{ url_for('recipes') }}" method="POST" class="ingredients-edit-form">
+        <textarea
+            name="ingredients"
+            class="ingredients-edit-form__textarea"
+            placeholder="eggs, milk, flour"
+        >{{ user_ingredients | join(', ') }}</textarea>
 
-  <div class="recipe-card__section">
-    <h4>Available ingredients</h4>
-    <ul class="recipe-card__list">
-      {% for item in recipe.available_ingredients %}
-        <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+        <button type="submit" class="ingredients-edit-form__button">
+            Update Recipes
+        </button>
+    </form>
+</section>
 
-  <div class="recipe-card__section">
-    <h4>Missing ingredients</h4>
-    <ul class="recipe-card__list">
-      {% for item in recipe.missing_ingredients %}
-        <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+<section class="recipes-scroll">
+    <div class="recipes-grid">
+        {% for recipe in suggestions if recipe.match_score > 0 %}
+            <article class="recipe-card">
+                <div class="recipe-card__top">
+                    <h3 class="recipe-card__title">{{ recipe.name }}</h3>
+                    <span class="recipe-card__badge">{{ recipe.match_score }}% match</span>
+                </div>
 
-  <div class="recipe-card__section">
-    <h4>Instructions</h4>
-    <p>{{ recipe.instructions }}</p>
-  </div>
+                <div class="recipe-card__meta">
+                    <span>{{ recipe.cooking_time }} minutes</span>
+                    <span>{{ recipe.difficulty }}</span>
+                </div>
 
-  <div class="recipe-card__actions">
-    <a href="#">Add to Favorites</a>
-  </div>
-</div>
-{% endfor %}
+                <div class="recipe-card__section">
+                    <h4>Available ingredients</h4>
+                    <ul class="recipe-card__list">
+                        {% for item in recipe.available_ingredients %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="recipe-card__section">
+                    <h4>Missing ingredients</h4>
+                    <ul class="recipe-card__list">
+                        {% for item in recipe.missing_ingredients %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="recipe-card__section">
+                    <h4>Instructions</h4>
+                    <p>{{ recipe.instructions }}</p>
+                </div>
+
+                <div class="recipe-card__actions">
+                    <a href="#">Add to Favorites</a>
+                </div>
+            </article>
+        {% else %}
+            <p class="recipes-empty-message">
+                No matching recipes yet. Add more ingredients and try again.
+            </p>
+        {% endfor %}
+    </div>
+</section>
+
 {% endblock %}

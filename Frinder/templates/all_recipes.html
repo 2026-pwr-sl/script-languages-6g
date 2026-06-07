@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="all-recipes-banner">
+    <p class="all-recipes-banner__label">All Recipes</p>
+    <h1>Browse All Recipes</h1>
+    <p>
+        Here you can see every recipe available in Frinder.
+    </p>
+</section>
+
+<section class="all-recipes-section">
+    {% if recipes %}
+        <div class="all-recipes-grid">
+            {% for recipe in recipes %}
+                <article class="recipe-card">
+                    <div class="recipe-card__top">
+                        <h3 class="recipe-card__title">{{ recipe.name }}</h3>
+                        <span class="recipe-card__badge">
+                            {{ recipe.difficulty }}
+                        </span>
+                    </div>
+
+                    <div class="recipe-card__meta">
+                        <span>{{ recipe.cooking_time }} minutes</span>
+                        <span>{{ recipe.ingredients | length }} ingredients</span>
+                    </div>
+
+                    <div class="recipe-card__section">
+                        <h4>Ingredients</h4>
+                        <ul class="recipe-card__list">
+                            {% for ingredient in recipe.ingredients %}
+                                <li>{{ ingredient }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="recipe-card__section">
+                        <h4>Instructions</h4>
+                        <p>{{ recipe.instructions }}</p>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="all-recipes-empty">
+            No recipes available yet.
+        </p>
+    {% endif %}
+</section>
+
+{% endblock %}

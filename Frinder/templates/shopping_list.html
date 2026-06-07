@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="shopping-banner">
+    <p class="shopping-banner__label">Shopping List</p>
+    <h1>Missing Ingredients Shopping List</h1>
+    <p>
+        Add missing ingredients from recipe cards, mark bought items with checkboxes,
+        copy the report, or download it.
+    </p>
+</section>
+
+<section class="shopping-layout">
+    <div class="shopping-card">
+        <div class="shopping-card__header">
+            <h2>Items to buy</h2>
+
+            <a
+                href="{{ url_for('download_shopping_list') }}"
+                class="shopping-button"
+            >
+                Download Report
+            </a>
+        </div>
+
+        {% if shopping_items %}
+            <ul class="shopping-items">
+                {% for item in shopping_items %}
+                    <li>
+                        <form
+                            action="{{ url_for('remove_shopping_item') }}"
+                            method="POST"
+                            class="shopping-checkbox-form"
+                        >
+                            <input
+                                type="hidden"
+                                name="ingredient"
+                                value="{{ item }}"
+                            >
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    onchange="this.form.submit()"
+                                >
+                                <span>{{ item }}</span>
+                            </label>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>
+                Your shopping list is empty. Add missing ingredients from the
+                Recipes page or from the section below.
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="shopping-card">
+        <div class="shopping-card__header">
+            <h2>Full report</h2>
+
+            <button
+                type="button"
+                class="shopping-button"
+                onclick="copyShoppingReport()"
+            >
+                Copy Report
+            </button>
+        </div>
+
+        <textarea
+            id="shopping-report"
+            class="shopping-report"
+            readonly
+        >{{ report_text }}</textarea>
+    </div>
+</section>
+
+<section class="shopping-card">
+    <h2>Missing ingredients by recipe</h2>
+
+    {% if matched_recipes %}
+        <div class="shopping-recipe-list">
+            {% for recipe in matched_recipes %}
+                <article class="shopping-recipe">
+                    <h3>{{ recipe.name }}</h3>
+                    <p>{{ recipe.match_score }}% match</p>
+
+                    {% if recipe.missing_ingredients %}
+                        <ul>
+                            {% for ingredient in recipe.missing_ingredients %}
+                                <li>{{ ingredient }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <form
+                            action="{{ url_for('add_to_shopping_list') }}"
+                            method="POST"
+                        >
+                            {% for ingredient in recipe.missing_ingredients %}
+                                <input
+                                    type="hidden"
+                                    name="missing_ingredients"
+                                    value="{{ ingredient }}"
+                                >
+                            {% endfor %}
+
+                            <button type="submit" class="shopping-button">
+                                Add All Missing Ingredients
+                            </button>
+                        </form>
+                    {% else %}
+                        <p>You already have all ingredients.</p>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            No latest recipe matches yet. Go to Home, enter ingredients,
+            and click Find Recipes first.
+        </p>
+    {% endif %}
+</section>
+
+<script>
+    function copyShoppingReport() {
+        const report = document.getElementById("shopping-report");
+
+        if (!report) {
+            return;
+        }
+
+        navigator.clipboard.writeText(report.value);
+    }
+</script>
+
+{% endblock %}

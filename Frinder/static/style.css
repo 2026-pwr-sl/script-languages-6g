@@ -312,3 +312,117 @@ button {
         grid-template-columns: 1fr;
     }
 }
+
+.shopping-banner {
+    background: linear-gradient(135deg, #0C9961, #1f4f46);
+    color: white;
+    padding: 28px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.shopping-banner__label {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.shopping-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.shopping-card {
+    background: white;
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.shopping-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.shopping-button {
+    border: none;
+    border-radius: 999px;
+    background: #0C9961;
+    color: white;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.shopping-button:hover {
+    opacity: 0.9;
+}
+
+.shopping-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.shopping-items li {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 0;
+}
+
+.shopping-checkbox-form label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.shopping-report {
+    width: 100%;
+    min-height: 300px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    font-family: monospace;
+    resize: vertical;
+}
+
+.shopping-recipe-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.shopping-recipe {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    background: #f8fafc;
+}
+
+.recipe-card__ready {
+    color: #166534;
+    font-weight: bold;
+}
+
+@media (max-width: 900px) {
+    .shopping-layout,
+    .shopping-recipe-list {
+        grid-template-columns: 1fr;
+    }
+
+    .shopping-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

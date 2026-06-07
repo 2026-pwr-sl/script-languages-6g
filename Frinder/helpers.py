@@ -52,3 +52,68 @@ def match_recipes(user_ingredients, recipes):
         )
 
     return sorted(matches, key=lambda x: x["match_score"], reverse=True)
+
+
+def read_user_ingredients(filepath):
+    path = Path(filepath)
+
+    if not path.exists():
+        return []
+
+    return [
+        clean_ingredient(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if clean_ingredient(line)
+    ]
+
+
+def read_shopping_list(filepath):
+    path = Path(filepath)
+
+    if not path.exists():
+        return []
+
+    return [
+        clean_ingredient(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if clean_ingredient(line)
+    ]
+
+
+def save_shopping_list(items, filepath):
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    unique_items = sorted(set(clean_ingredient(item) for item in items if clean_ingredient(item)))
+    path.write_text("\n".join(unique_items), encoding="utf-8")
+
+
+def add_missing_to_shopping_list(missing_items, filepath):
+    current_items = read_shopping_list(filepath)
+    new_items = [
+        clean_ingredient(item)
+        for item in missing_items
+        if clean_ingredient(item)
+    ]
+
+    save_shopping_list(current_items + new_items, filepath)
+
+
+def remove_from_shopping_list(item, filepath):
+    item_to_remove = clean_ingredient(item)
+    current_items = read_shopping_list(filepath)
+
+    updated_items = [
+        ingredient
+        for ingredient in current_items
+        if ingredient != item_to_remove
+    ]
+
+    save_shopping_list(updated_items, filepath)
+
+
+def build_shopping_report(shopping_items, matched_recipes):
+    if not shopping_items:
+        return "Shopping list is empty."
+
+    return "\n".join(f"- {item}" for item in shopping_items)

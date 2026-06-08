@@ -156,7 +156,7 @@ def summary():
     missing_table_data = missing_counter.most_common(5)
 
     if best_match == 0:
-        recommendation = "Your fridge is bare."
+        recommendation = "Your fridge is empty."
     elif best_match < 20:
         recommendation = "You should go shopping."
     elif best_match < 60:

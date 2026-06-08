@@ -31,6 +31,10 @@ def save_user_ingredients(ingredients, filepath):
     path.write_text("\n".join(ingredients), encoding="utf-8")
 
 
+def recipe_key(recipe_name):
+    return clean_ingredient(recipe_name)
+
+
 def match_recipes(user_ingredients, recipes):
     user_set = set(user_ingredients)
     matches = []
@@ -88,6 +92,53 @@ def save_shopping_list(items, filepath):
 
     unique_items = sorted(set(clean_ingredient(item) for item in items if clean_ingredient(item)))
     path.write_text("\n".join(unique_items), encoding="utf-8")
+
+
+def read_favourite_recipe_names(filepath):
+    path = Path(filepath)
+
+    if not path.exists():
+        return []
+
+    return [
+        recipe_key(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if recipe_key(line)
+    ]
+
+
+def save_favourite_recipe_names(recipe_names, filepath):
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    unique_recipe_names = []
+    seen_names = set()
+
+    for recipe_name in recipe_names:
+        name = recipe_key(recipe_name)
+
+        if name and name not in seen_names:
+            unique_recipe_names.append(name)
+            seen_names.add(name)
+
+    path.write_text("\n".join(unique_recipe_names), encoding="utf-8")
+
+
+def add_favourite_recipe(recipe_name, filepath):
+    favourite_names = read_favourite_recipe_names(filepath)
+    favourite_names.append(recipe_name)
+    save_favourite_recipe_names(favourite_names, filepath)
+
+
+def remove_favourite_recipe(recipe_name, filepath):
+    name_to_remove = recipe_key(recipe_name)
+    favourite_names = [
+        name
+        for name in read_favourite_recipe_names(filepath)
+        if name != name_to_remove
+    ]
+
+    save_favourite_recipe_names(favourite_names, filepath)
 
 
 def add_missing_to_shopping_list(missing_items, filepath):

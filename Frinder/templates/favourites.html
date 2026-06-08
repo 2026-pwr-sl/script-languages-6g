@@ -2,19 +2,19 @@
 
 {% block content %}
 
-<section class="all-recipes-banner">
-    <p class="all-recipes-banner__label">All Recipes</p>
-    <h1>Browse All Recipes</h1>
+<section class="favourites-banner">
+    <p class="favourites-banner__label">Favourites</p>
+    <h1>Your Favourite Recipes</h1>
     <p>
-        Here you can see every recipe available in Frinder.
+        Recipes you saved for later are collected here.
     </p>
 </section>
 
-<section class="all-recipes-section">
+<section class="favourites-section">
     {% if recipes %}
-        <div class="all-recipes-grid">
+        <div class="favourites-grid">
             {% for recipe in recipes %}
-                <article class="recipe-card{% if recipe.is_favourite %} recipe-card--favourite{% endif %}">
+                <article class="recipe-card recipe-card--favourite">
                     <div class="recipe-card__top">
                         <h3 class="recipe-card__title">{{ recipe.name }}</h3>
                         <span class="recipe-card__badge">
@@ -42,28 +42,19 @@
                     </div>
 
                     <div class="recipe-card__actions">
-                        {% if recipe.is_favourite %}
-                            <form action="{{ url_for('remove_from_favourites') }}" method="POST">
-                                <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
-                                <button type="submit" class="favourite-button favourite-button--active">
-                                    Remove from Favourites
-                                </button>
-                            </form>
-                        {% else %}
-                            <form action="{{ url_for('add_to_favourites') }}" method="POST">
-                                <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
-                                <button type="submit" class="favourite-button">
-                                    Add to Favourites
-                                </button>
-                            </form>
-                        {% endif %}
+                        <form action="{{ url_for('remove_from_favourites') }}" method="POST">
+                            <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
+                            <button type="submit" class="favourite-button favourite-button--active">
+                                Remove from Favourites
+                            </button>
+                        </form>
                     </div>
                 </article>
             {% endfor %}
         </div>
     {% else %}
-        <p class="all-recipes-empty">
-            No recipes available yet.
+        <p class="favourites-empty">
+            You have not added any favourite recipes yet.
         </p>
     {% endif %}
 </section>

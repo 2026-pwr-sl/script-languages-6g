@@ -2,10 +2,12 @@
 
 {% block content %}
 <h1>Frinder</h1>
-<p>Enter ingredients and get recipe ideas.</p>
+<p>Enter ingredients or upload a .txt file and get recipe ideas.</p>
 
-<form action="{{ url_for('recipes') }}" method="POST">
+<form action="{{ url_for('recipes') }}" method="POST" enctype="multipart/form-data">
   <textarea name="ingredients" placeholder="eggs, milk, flour"></textarea>
+  <label for="ingredients-file">Upload ingredients as .txt</label>
+  <input id="ingredients-file" type="file" name="ingredients_file" accept=".txt,text/plain">
   <button type="submit">Find Recipes</button>
 </form>
 {% endblock %}

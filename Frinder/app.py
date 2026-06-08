@@ -3,13 +3,17 @@ from pathlib import Path
 from flask import Flask, Response, flash, redirect, render_template, request, url_for
 
 from helpers import (
+    add_favourite_recipe,
     add_missing_to_shopping_list,
     build_shopping_report,
     load_recipes,
     match_recipes,
     parse_ingredients,
+    read_favourite_recipe_names,
     read_shopping_list,
     read_user_ingredients,
+    recipe_key,
+    remove_favourite_recipe,
     remove_from_shopping_list,
     save_user_ingredients,
 )
@@ -20,9 +24,35 @@ DATA_DIR = BASE_DIR / "data"
 RECIPES_FILE = DATA_DIR / "recipes.json"
 USER_INGREDIENTS_FILE = DATA_DIR / "user_ingredients.txt"
 SHOPPING_LIST_FILE = DATA_DIR / "shopping_list.txt"
+FAVOURITES_FILE = DATA_DIR / "favourites.txt"
 
 app = Flask(__name__)
 app.secret_key = "frinder2137glhfdonthackmeplease"
+
+
+def read_uploaded_ingredients_file(uploaded_file):
+    if not uploaded_file or not uploaded_file.filename:
+        return ""
+
+    if not uploaded_file.filename.lower().endswith(".txt"):
+        raise ValueError("Please upload a .txt file with your ingredients.")
+
+    try:
+        return uploaded_file.read().decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ValueError("Please upload a valid UTF-8 .txt file.") from error
+
+
+def add_favourite_status(recipes, favourite_recipe_names):
+    favourite_name_set = set(favourite_recipe_names)
+
+    return [
+        {
+            **recipe,
+            "is_favourite": recipe_key(recipe.get("name", "")) in favourite_name_set,
+        }
+        for recipe in recipes
+    ]
 
 
 @app.route("/")
@@ -32,29 +62,69 @@ def index():
 
 @app.route("/recipes", methods=["GET", "POST"])
 def recipes():
+    favourite_recipe_names = read_favourite_recipe_names(FAVOURITES_FILE)
+
     if request.method == "POST":
-        user_ingredients = parse_ingredients(request.form.get("ingredients", ""))
+        ingredients_text = request.form.get("ingredients", "")
+        uploaded_file = request.files.get("ingredients_file")
+
+        try:
+            uploaded_ingredients_text = read_uploaded_ingredients_file(uploaded_file)
+        except ValueError as error:
+            flash(str(error), "error")
+            return redirect(url_for("index"))
+
+        user_ingredients = parse_ingredients(
+            f"{ingredients_text}\n{uploaded_ingredients_text}"
+        )
 
         if not user_ingredients:
-            flash("Please enter at least one ingredient.", "error")
+            flash("Please enter or upload at least one ingredient.", "error")
             return redirect(url_for("index"))
 
         save_user_ingredients(user_ingredients, USER_INGREDIENTS_FILE)
         recipes_list = load_recipes(RECIPES_FILE)
-        suggestions = match_recipes(user_ingredients, recipes_list)
+        suggestions = add_favourite_status(
+            match_recipes(user_ingredients, recipes_list),
+            favourite_recipe_names,
+        )
 
         return render_template(
             "recipes.html",
             user_ingredients=user_ingredients,
             suggestions=suggestions,
+            favourite_recipe_names=favourite_recipe_names,
         )
-    return render_template("recipes.html", user_ingredients=[], suggestions=[])
+
+    user_ingredients = read_user_ingredients(USER_INGREDIENTS_FILE)
+    suggestions = []
+
+    if user_ingredients:
+        recipes_list = load_recipes(RECIPES_FILE)
+        suggestions = add_favourite_status(
+            match_recipes(user_ingredients, recipes_list),
+            favourite_recipe_names,
+        )
+
+    return render_template(
+        "recipes.html",
+        user_ingredients=user_ingredients,
+        suggestions=suggestions,
+        favourite_recipe_names=favourite_recipe_names,
+    )
 
 
 @app.route("/all-recipes")
 def all_recipes():
     recipes_list = load_recipes(RECIPES_FILE)
-    return render_template("all_recipes.html", recipes=recipes_list)
+    favourite_recipe_names = read_favourite_recipe_names(FAVOURITES_FILE)
+    recipes_list = add_favourite_status(recipes_list, favourite_recipe_names)
+
+    return render_template(
+        "all_recipes.html",
+        recipes=recipes_list,
+        favourite_recipe_names=favourite_recipe_names,
+    )
 
         
 @app.route("/summary")
@@ -64,7 +134,45 @@ def summary():
 
 @app.route("/favourites")
 def favourites():
-    return render_template("favourites.html")
+    recipes_list = load_recipes(RECIPES_FILE)
+    favourite_recipe_names = read_favourite_recipe_names(FAVOURITES_FILE)
+    favourite_recipes = [
+        recipe
+        for recipe in add_favourite_status(recipes_list, favourite_recipe_names)
+        if recipe_key(recipe.get("name", "")) in favourite_recipe_names
+    ]
+
+    return render_template(
+        "favourites.html",
+        recipes=favourite_recipes,
+        favourite_recipe_names=favourite_recipe_names,
+    )
+
+
+@app.route("/favourites/add", methods=["POST"])
+def add_to_favourites():
+    recipe_name = request.form.get("recipe_name", "")
+
+    if not recipe_key(recipe_name):
+        flash("Recipe could not be added to favourites.", "error")
+    else:
+        add_favourite_recipe(recipe_name, FAVOURITES_FILE)
+        flash(f"{recipe_name} added to favourites.", "success")
+
+    return redirect(request.referrer or url_for("favourites"))
+
+
+@app.route("/favourites/remove", methods=["POST"])
+def remove_from_favourites():
+    recipe_name = request.form.get("recipe_name", "")
+
+    if not recipe_key(recipe_name):
+        flash("Recipe could not be removed from favourites.", "error")
+    else:
+        remove_favourite_recipe(recipe_name, FAVOURITES_FILE)
+        flash(f"{recipe_name} removed from favourites.", "success")
+
+    return redirect(request.referrer or url_for("favourites"))
 
 
 def get_latest_recipe_matches():

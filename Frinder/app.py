@@ -14,6 +14,7 @@ from helpers import (
     read_user_ingredients,
     remove_from_shopping_list,
     save_user_ingredients,
+    generate_summary_graphs,
 )
 
 
@@ -93,6 +94,13 @@ def summary():
     else:
         recommendation = "You can cook a full meal right now without shopping."
 
+    filename_missing = "summary_missing.png"
+    filename_difficulty = "summary_difficulty.png"
+    
+    path_missing = BASE_DIR / "static" / filename_missing
+    path_difficulty = BASE_DIR / "static" / filename_difficulty
+    
+    generate_summary_graphs(missing_counter, suggestions, path_missing, path_difficulty)
 
     return render_template(
         "summary.html",
@@ -104,6 +112,8 @@ def summary():
         most_common_missing=most_common_missing.capitalize(),
         recommendation=recommendation,
         missing_table_data=missing_table_data,
+        graph_missing_url=url_for('static', filename=filename_missing),
+        graph_difficulty_url=url_for('static', filename=filename_difficulty)
     )
 
 

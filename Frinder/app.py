@@ -16,6 +16,7 @@ from helpers import (
     remove_favourite_recipe,
     remove_from_shopping_list,
     save_user_ingredients,
+    add_user_ingredient,
 )
 
 
@@ -55,9 +56,24 @@ def add_favourite_status(recipes, favourite_recipe_names):
     ]
 
 
+@app.route("/quick-add", methods=["POST"])
+def quick_add():
+    ingredient = request.form.get("ingredient")
+    
+    if ingredient:
+        add_user_ingredient(ingredient, USER_INGREDIENTS_FILE)
+        flash(f"Added {ingredient} to your fridge!", "success")
+        
+    return redirect(url_for("index", open_widget=True))
+
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    saved_items = read_user_ingredients(USER_INGREDIENTS_FILE)
+    
+    saved_items_str = ", ".join(saved_items)
+    
+    return render_template("index.html", saved_items_str=saved_items_str)
 
 
 @app.route("/recipes", methods=["GET", "POST"])

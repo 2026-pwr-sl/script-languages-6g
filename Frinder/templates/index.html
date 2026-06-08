@@ -1,13 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Frinder</h1>
-<p>Enter ingredients or upload a .txt file and get recipe ideas.</p>
+<div>
+  <header class="homepage-header">
+    <h1>Enter ingredients, upload a .txt file, or pick from our quick list to get recipe ideas.</h1>
+  </header>
+  <form action="{{ url_for('quick_add') }}" method="POST">
+    <details class="quick-add-widget" {% if request.args.get('open_widget') %}open{% endif %}>
+      <summary class="quick-add-summary">
+        Quick Add Ingredients
+      </summary>
+      <table class="quick-add-table">
+        <tbody>
+          <tr>
+            <th>Dairy</th>
+            <td>
+              <button type="submit" name="ingredient" value="cheese" class="quick-add-btn">+ Cheese</button>
+              <button type="submit" name="ingredient" value="milk" class="quick-add-btn">+ Milk</button>
+              <button type="submit" name="ingredient" value="butter" class="quick-add-btn">+ Butter</button>
+            </td>
+          </tr>
+          <tr>
+            <th>Pantry</th>
+            <td>
+              <button type="submit" name="ingredient" value="flour" class="quick-add-btn">+ Flour</button>
+              <button type="submit" name="ingredient" value="rice" class="quick-add-btn">+ Rice</button>
+              <button type="submit" name="ingredient" value="pasta" class="quick-add-btn">+ Pasta</button>
+            </td>
+          </tr>
+          <tr>
+            <th>Vegetables & Meat</th>
+            <td>
+              <button type="submit" name="ingredient" value="onion" class="quick-add-btn">+ Onion</button>
+              <button type="submit" name="ingredient" value="garlic" class="quick-add-btn">+ Garlic</button>
+              <button type="submit" name="ingredient" value="chicken" class="quick-add-btn">+ Chicken</button>
+            </td>
+          </tr>
+          <tr>
+            <th>Other</th>
+            <td>
+              <button type="submit" name="ingredient" value="sugar" class="quick-add-btn">+ Sugar</button>
+              <button type="submit" name="ingredient" value="salt" class="quick-add-btn">+ Salt</button>
+              <button type="submit" name="ingredient" value="pepper" class="quick-add-btn">+ Pepper</button>
+              <button type="submit" name="ingredient" value="eggs" class="quick-add-btn">+ Eggs</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+  </form>
 
-<form action="{{ url_for('recipes') }}" method="POST" enctype="multipart/form-data">
-  <textarea name="ingredients" placeholder="eggs, milk, flour"></textarea>
-  <label for="ingredients-file">Upload ingredients as .txt</label>
-  <input id="ingredients-file" type="file" name="ingredients_file" accept=".txt,text/plain">
-  <button type="submit">Find Recipes</button>
-</form>
+  <form action="{{ url_for('recipes') }}" method="POST" enctype="multipart/form-data">
+    <textarea name="ingredients" class="homepage-textarea" placeholder="eggs, milk, flour">{{ saved_items_str }}</textarea>
+    
+    <div class="homepage-actions">
+      <div class="file-upload-section">
+        <label for="ingredients-file"><strong>Or upload ingredients as .txt:</strong></label>
+        <br>
+        <input id="ingredients-file" type="file" name="ingredients_file" accept=".txt,text/plain" class="file-input">
+      </div>
+
+      <button type="submit" class="primary-submit-btn">Find Recipes</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

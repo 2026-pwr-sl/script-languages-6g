@@ -513,3 +513,105 @@ button {
         align-items: flex-start;
     }
 }
+
+.homepage-header {
+  font-size: 0.92rem;
+  background: linear-gradient(135deg, #0C9961, #1f4f46);
+  color: white;
+  padding: 28px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.homepage-actions {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 15px;
+}
+
+.file-upload-section {
+  flex-grow: 1;
+}
+
+.primary-submit-btn {
+  background-color: #0C9961;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.primary-submit-btn:hover {
+  opacity: 0.9;
+}
+
+.quick-add-widget {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid #686873;
+}
+
+.quick-add-summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #1f4f46;
+  font-size: 1.1rem;
+}
+
+.quick-add-table {
+  width: 80%;
+  margin-top: 16px;
+}
+
+.quick-add-table th,
+.quick-add-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+}
+
+.quick-add-table th {
+  width: 40%;
+  color: #475569;
+  font-weight: 600;
+}
+
+.quick-add-btn {
+  background-color: #d2ffe2;
+  color: #0f9e65;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 6px 14px;
+  margin: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.quick-add-btn:hover {
+  background-color: #bbf7d0;
+  transform: translateY(-1px);
+}
+
+.homepage-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 16px;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: #ffffff;
+  resize: none;
+}
+
+.file-input {
+  margin-top: 8px;
+  font-size: 0.95rem;
+}

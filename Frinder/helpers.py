@@ -27,6 +27,17 @@ def save_user_ingredients(ingredients, filepath):
     path.write_text("\n".join(ingredients), encoding="utf-8")
 
 
+def add_user_ingredient(ingredient, filepath):
+    current_ingredients = read_user_ingredients(filepath)
+    
+    item = clean_ingredient(ingredient)
+
+    if item and item not in current_ingredients:
+        current_ingredients.append(item)
+        
+        save_user_ingredients(current_ingredients, filepath)
+
+
 def recipe_key(recipe_name):
     return clean_ingredient(recipe_name)
 

@@ -2,6 +2,8 @@ from pathlib import Path
 
 from flask import Flask, Response, flash, redirect, render_template, request, url_for
 
+from collections import Counter
+
 from helpers import (
     add_favourite_recipe,
     add_missing_to_shopping_list,
@@ -16,6 +18,7 @@ from helpers import (
     remove_favourite_recipe,
     remove_from_shopping_list,
     save_user_ingredients,
+    generate_summary_graphs,
 )
 
 
@@ -129,7 +132,59 @@ def all_recipes():
         
 @app.route("/summary")
 def summary():
-    return render_template("summary.html")
+    recipes_list = load_recipes(RECIPES_FILE)
+    user_ingredients = read_user_ingredients(USER_INGREDIENTS_FILE)
+
+    if not user_ingredients:
+        return render_template("summary.html", empty=True)
+
+    suggestions = match_recipes(user_ingredients, recipes_list)
+    
+    total_available = len(user_ingredients)
+    total_suggested = len(suggestions)
+    
+    scores = [s['match_score'] for s in suggestions] if suggestions else [0]
+    best_match = max(scores) if suggestions else 0
+    avg_match = sum(scores) / len(scores) if suggestions else 0
+
+    missing_counter = Counter()
+    for s in suggestions:
+        for missing in s.get('missing_ingredients', []):
+            missing_counter[missing.lower()] += 1
+
+    most_common_missing = missing_counter.most_common(1)[0][0] if missing_counter else "None"
+    missing_table_data = missing_counter.most_common(5)
+
+    if best_match == 0:
+        recommendation = "Your fridge is empty."
+    elif best_match < 20:
+        recommendation = "You should go shopping."
+    elif best_match < 60:
+        recommendation = "Decent matches available."
+    else:
+        recommendation = "You can cook a full meal right now without shopping."
+
+    filename_missing = "summary_missing.png"
+    filename_difficulty = "summary_difficulty.png"
+    
+    path_missing = BASE_DIR / "static" / filename_missing
+    path_difficulty = BASE_DIR / "static" / filename_difficulty
+    
+    generate_summary_graphs(missing_counter, suggestions, path_missing, path_difficulty)
+
+    return render_template(
+        "summary.html",
+        empty=False,
+        total_available=total_available,
+        total_suggested=total_suggested,
+        best_match=round(best_match, 1),
+        avg_match=round(avg_match, 1),
+        most_common_missing=most_common_missing.capitalize(),
+        recommendation=recommendation,
+        missing_table_data=missing_table_data,
+        graph_missing_url=url_for('static', filename=filename_missing),
+        graph_difficulty_url=url_for('static', filename=filename_difficulty)
+    )
 
 
 @app.route("/favourites")

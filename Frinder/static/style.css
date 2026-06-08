@@ -39,12 +39,21 @@ button {
   padding: 10px;
 }
 
+.flash-messages .success {
+  background: #dcfce7;
+  padding: 10px;
+}
+
 .recipe-card {
   background: white;
   border-radius: 14px;
   padding: 20px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
   border-top: 5px solid #1f4f46;
+}
+
+.recipe-card--favourite {
+  border-top-color: #D6A92D;
 }
 
 .recipe-card__top {
@@ -77,6 +86,32 @@ button {
 
 .recipe-card__actions {
   margin-top: 16px;
+}
+
+.recipe-card__actions form {
+  margin: 0;
+}
+
+.favourite-button {
+  border: 1px solid #D6A92D;
+  border-radius: 999px;
+  background: white;
+  color: #6b520f;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.favourite-button:hover {
+  background: #fff7d6;
+}
+
+.favourite-button--active {
+  background: #D6A92D;
+  color: #1f2937;
+}
+
+.favourite-button--active:hover {
+  background: #c99d28;
 }
 
 .navbar {
@@ -301,14 +336,66 @@ button {
     padding: 20px;
 }
 
+.favourites-banner {
+    background: linear-gradient(135deg, #0C9961, #1f4f46);
+    color: white;
+    padding: 28px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.favourites-banner__label {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.favourites-banner h1 {
+    margin: 0 0 10px;
+}
+
+.favourites-banner p {
+    margin: 0;
+}
+
+.favourites-section {
+    max-height: 72vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.favourites-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.favourites-empty {
+    background: white;
+    border-top: 5px solid #D6A92D;
+    border-radius: 14px;
+    padding: 20px;
+}
+
 @media (max-width: 900px) {
     .all-recipes-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .favourites-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 650px) {
     .all-recipes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .favourites-grid {
         grid-template-columns: 1fr;
     }
 }

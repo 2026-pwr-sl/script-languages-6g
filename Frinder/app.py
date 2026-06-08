@@ -4,13 +4,13 @@ from flask import Flask, Response, flash, redirect, render_template, request, ur
 
 from collections import Counter
 
-from helpers import (
+from charts import generate_summary_graphs
+from matching import match_recipes
+from storage import (
     add_favourite_recipe,
     add_missing_to_shopping_list,
     build_shopping_report,
     load_recipes,
-    match_recipes,
-    parse_ingredients,
     read_favourite_recipe_names,
     read_shopping_list,
     read_user_ingredients,
@@ -18,9 +18,8 @@ from helpers import (
     remove_favourite_recipe,
     remove_from_shopping_list,
     save_user_ingredients,
-    generate_summary_graphs,
 )
-
+from utils import parse_ingredients
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
@@ -50,10 +49,12 @@ def add_favourite_status(recipes, favourite_recipe_names):
     favourite_name_set = set(favourite_recipe_names)
 
     return [
-        {
-            **recipe,
-            "is_favourite": recipe_key(recipe.get("name", "")) in favourite_name_set,
-        }
+        recipe.__class__(
+            **{
+                **recipe.to_dict(),
+                "is_favourite": recipe_key(recipe.name) in favourite_name_set,
+            }
+        )
         for recipe in recipes
     ]
 
@@ -129,7 +130,7 @@ def all_recipes():
         favourite_recipe_names=favourite_recipe_names,
     )
 
-        
+
 @app.route("/summary")
 def summary():
     recipes_list = load_recipes(RECIPES_FILE)
@@ -139,17 +140,17 @@ def summary():
         return render_template("summary.html", empty=True)
 
     suggestions = match_recipes(user_ingredients, recipes_list)
-    
+
     total_available = len(user_ingredients)
     total_suggested = len(suggestions)
-    
-    scores = [s['match_score'] for s in suggestions] if suggestions else [0]
+
+    scores = [s.match_score for s in suggestions] if suggestions else [0]
     best_match = max(scores) if suggestions else 0
     avg_match = sum(scores) / len(scores) if suggestions else 0
 
     missing_counter = Counter()
-    for s in suggestions:
-        for missing in s.get('missing_ingredients', []):
+    for suggestion in suggestions:
+        for missing in suggestion.missing_ingredients:
             missing_counter[missing.lower()] += 1
 
     most_common_missing = missing_counter.most_common(1)[0][0] if missing_counter else "None"
@@ -166,10 +167,10 @@ def summary():
 
     filename_missing = "summary_missing.png"
     filename_difficulty = "summary_difficulty.png"
-    
+
     path_missing = BASE_DIR / "static" / filename_missing
     path_difficulty = BASE_DIR / "static" / filename_difficulty
-    
+
     generate_summary_graphs(missing_counter, suggestions, path_missing, path_difficulty)
 
     return render_template(
@@ -194,7 +195,7 @@ def favourites():
     favourite_recipes = [
         recipe
         for recipe in add_favourite_status(recipes_list, favourite_recipe_names)
-        if recipe_key(recipe.get("name", "")) in favourite_recipe_names
+        if recipe_key(recipe.name) in favourite_recipe_names
     ]
 
     return render_template(
@@ -242,7 +243,7 @@ def get_latest_recipe_matches():
     return [
         recipe
         for recipe in suggestions
-        if recipe.get("match_score", 0) > 0
+        if recipe.match_score > 0
     ]
 
 

@@ -25,6 +25,19 @@ app = Flask(__name__)
 app.secret_key = "frinder2137glhfdonthackmeplease"
 
 
+def read_uploaded_ingredients_file(uploaded_file):
+    if not uploaded_file or not uploaded_file.filename:
+        return ""
+
+    if not uploaded_file.filename.lower().endswith(".txt"):
+        raise ValueError("Please upload a .txt file with your ingredients.")
+
+    try:
+        return uploaded_file.read().decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ValueError("Please upload a valid UTF-8 .txt file.") from error
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -33,10 +46,21 @@ def index():
 @app.route("/recipes", methods=["GET", "POST"])
 def recipes():
     if request.method == "POST":
-        user_ingredients = parse_ingredients(request.form.get("ingredients", ""))
+        ingredients_text = request.form.get("ingredients", "")
+        uploaded_file = request.files.get("ingredients_file")
+
+        try:
+            uploaded_ingredients_text = read_uploaded_ingredients_file(uploaded_file)
+        except ValueError as error:
+            flash(str(error), "error")
+            return redirect(url_for("index"))
+
+        user_ingredients = parse_ingredients(
+            f"{ingredients_text}\n{uploaded_ingredients_text}"
+        )
 
         if not user_ingredients:
-            flash("Please enter at least one ingredient.", "error")
+            flash("Please enter or upload at least one ingredient.", "error")
             return redirect(url_for("index"))
 
         save_user_ingredients(user_ingredients, USER_INGREDIENTS_FILE)

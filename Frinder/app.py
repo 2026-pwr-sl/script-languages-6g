@@ -9,6 +9,7 @@ from matching import match_recipes
 from storage import (
     add_favourite_recipe,
     add_missing_to_shopping_list,
+    add_user_ingredient,
     build_shopping_report,
     load_recipes,
     read_favourite_recipe_names,

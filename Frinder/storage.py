@@ -20,6 +20,16 @@ def save_user_ingredients(ingredients, filepath):
     path.write_text("\n".join(ingredients), encoding="utf-8")
 
 
+def add_user_ingredient(ingredient, filepath):
+    current_ingredients = read_user_ingredients(filepath)
+    cleaned_ingredient = clean_ingredient(ingredient)
+
+    if cleaned_ingredient and cleaned_ingredient not in current_ingredients:
+        current_ingredients.append(cleaned_ingredient)
+
+    save_user_ingredients(current_ingredients, filepath)
+
+
 def read_user_ingredients(filepath):
     path = Path(filepath)
 

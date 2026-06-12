@@ -217,13 +217,17 @@ button {
 }
 
 .ingredients-edit-form__button {
+    align-self: flex-start;
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    padding: 10px 20px;
     border: none;
-    border-radius: 999px;
+    border-radius: 99px;
     background: #0C9961;
     color: white;
     cursor: pointer;
     font-weight: bold;
-    white-space: nowrap;
 }
 
 .ingredients-edit-form__button:hover {
@@ -926,4 +930,56 @@ button {
 .file-input {
   margin-top: 8px;
   font-size: 0.95rem;
+}
+
+.ingredients-edit-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.ingredients-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  min-height: 54px;
+  box-sizing: border-box;
+}
+
+.ingredient-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #e2e8f0;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+.ingredient-tag:hover {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.tag-delete-icon {
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 0 0 2px;
 }

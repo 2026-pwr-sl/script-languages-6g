@@ -235,3 +235,16 @@ def build_shopping_report(shopping_items, matched_recipes):
         return "Shopping list is empty."
 
     return "\n".join(f"- {item}" for item in shopping_items)
+
+
+def remove_user_ingredient(ingredient):
+    item_to_remove = clean_ingredient(ingredient)
+    current_items = read_user_ingredients()
+
+    updated_items = [
+        item
+        for item in current_items
+        if item != item_to_remove
+    ]
+
+    save_user_ingredients(updated_items)

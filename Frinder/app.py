@@ -19,6 +19,7 @@ from storage import (
     remove_favourite_recipe,
     remove_from_shopping_list,
     save_user_ingredients,
+    remove_user_ingredient,
 )
 from utils import parse_ingredients
 
@@ -137,6 +138,15 @@ def recipes():
         suggestions=suggestions,
         favourite_recipe_names=favourite_recipe_names,
     )
+
+
+@app.route("/remove-ingredient", methods=["POST"])
+def remove_ingredient():
+    ingredient = request.form.get("ingredient")
+    if ingredient:
+        remove_user_ingredient(ingredient)
+        
+    return redirect(url_for("recipes"))
 
 
 @app.route("/all-recipes")

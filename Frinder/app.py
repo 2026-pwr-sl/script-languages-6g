@@ -9,6 +9,7 @@ from matching import match_recipes
 from storage import (
     add_favourite_recipe,
     add_missing_to_shopping_list,
+    add_user_ingredient,
     build_shopping_report,
     load_recipes,
     read_favourite_recipe_names,
@@ -59,9 +60,24 @@ def add_favourite_status(recipes, favourite_recipe_names):
     ]
 
 
+@app.route("/quick-add", methods=["POST"])
+def quick_add():
+    ingredient = request.form.get("ingredient")
+    
+    if ingredient:
+        add_user_ingredient(ingredient, USER_INGREDIENTS_FILE)
+        flash(f"Added {ingredient} to your fridge!", "success")
+        
+    return redirect(url_for("index", open_widget=True))
+
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    saved_items = read_user_ingredients(USER_INGREDIENTS_FILE)
+    
+    saved_items_str = ", ".join(saved_items)
+    
+    return render_template("index.html", saved_items_str=saved_items_str)
 
 
 @app.route("/recipes", methods=["GET", "POST"])

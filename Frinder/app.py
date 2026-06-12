@@ -160,9 +160,9 @@ def summary():
     total_available = len(user_ingredients)
     total_suggested = len(suggestions)
 
-    scores = [s.match_score for s in suggestions] if suggestions else [0]
-    best_match = max(scores) if suggestions else 0
-    avg_match = sum(scores) / len(scores) if suggestions else 0
+    match_scores = [s.match_score for s in suggestions]
+    best_match = max(match_scores, default=0)
+    avg_match = sum(match_scores) / len(match_scores) if match_scores else 0
 
     missing_counter = Counter()
     for suggestion in suggestions:
@@ -170,7 +170,7 @@ def summary():
             missing_counter[missing.lower()] += 1
 
     most_common_missing = missing_counter.most_common(1)[0][0] if missing_counter else "None"
-    missing_table_data = missing_counter.most_common(5)
+    missing_table_data = missing_counter.most_common(10)
 
     if best_match == 0:
         recommendation = "Your fridge is empty."

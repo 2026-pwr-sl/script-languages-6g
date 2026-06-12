@@ -1,130 +1,225 @@
-import json
-from pathlib import Path
+from sqlalchemy import delete, func, select
+from sqlalchemy.orm import selectinload
 
+from db import session
+from db_models import (
+    FavoriteRecipeRow,
+    RecipeIngredientRow,
+    RecipeRow,
+    ShoppingListRow,
+    UserIngredientRow,
+)
 from models import Recipe
+from seed import get_or_create_ingredient
 from utils import clean_ingredient, recipe_key
 
 
-def load_recipes(filepath):
-    path = Path(filepath)
-    if not path.exists():
-        return []
-
-    with path.open("r", encoding="utf-8") as file:
-        return [Recipe.from_dict(recipe) for recipe in json.load(file)]
-
-
-def save_user_ingredients(ingredients, filepath):
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(ingredients), encoding="utf-8")
+def _recipe_row_to_model(recipe_row):
+    ingredients = [link.ingredient.name for link in recipe_row.recipe_ingredients]
+    return Recipe(
+        name=recipe_row.name,
+        ingredients=ingredients,
+        instructions=recipe_row.instructions,
+        cooking_time=recipe_row.cooking_time,
+        difficulty=recipe_row.difficulty,
+    )
 
 
-def add_user_ingredient(ingredient, filepath):
-    current_ingredients = read_user_ingredients(filepath)
-    cleaned_ingredient = clean_ingredient(ingredient)
-
-    if cleaned_ingredient and cleaned_ingredient not in current_ingredients:
-        current_ingredients.append(cleaned_ingredient)
-
-    save_user_ingredients(current_ingredients, filepath)
+def _recipe_id_by_key(session, target_key):
+    return session.scalar(
+        select(RecipeRow.id).where(func.lower(func.trim(RecipeRow.name)) == target_key)
+    )
 
 
-def read_user_ingredients(filepath):
-    path = Path(filepath)
+def _unique_cleaned_items(items):
+    unique_items = []
+    seen = set()
 
-    if not path.exists():
-        return []
+    for item in items:
+        cleaned = clean_ingredient(item)
+        if cleaned and cleaned not in seen:
+            unique_items.append(cleaned)
+            seen.add(cleaned)
 
-    return [
-        clean_ingredient(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if clean_ingredient(line)
-    ]
-
-
-def read_shopping_list(filepath):
-    path = Path(filepath)
-
-    if not path.exists():
-        return []
-
-    return [
-        clean_ingredient(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if clean_ingredient(line)
-    ]
+    return unique_items
 
 
-def save_shopping_list(items, filepath):
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
+def _read_user_ingredient_names(session):
+    rows = session.execute(
+        select(UserIngredientRow)
+        .options(selectinload(UserIngredientRow.ingredient))
+        .order_by(UserIngredientRow.id)
+    ).scalars().all()
 
-    unique_items = sorted(set(clean_ingredient(item) for item in items if clean_ingredient(item)))
-    path.write_text("\n".join(unique_items), encoding="utf-8")
-
-
-def read_favourite_recipe_names(filepath):
-    path = Path(filepath)
-
-    if not path.exists():
-        return []
-
-    return [
-        recipe_key(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if recipe_key(line)
-    ]
+    return [row.ingredient.name for row in rows]
 
 
-def save_favourite_recipe_names(recipe_names, filepath):
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
+def _read_shopping_list_names(session):
+    rows = session.execute(
+        select(ShoppingListRow)
+        .options(selectinload(ShoppingListRow.ingredient))
+        .order_by(ShoppingListRow.id)
+    ).scalars().all()
 
-    unique_recipe_names = []
-    seen_names = set()
+    return [row.ingredient.name for row in rows]
+
+
+def _read_favourite_recipe_names(session):
+    rows = session.execute(
+        select(FavoriteRecipeRow)
+        .options(selectinload(FavoriteRecipeRow.recipe))
+        .order_by(FavoriteRecipeRow.id)
+    ).scalars().all()
+
+    return [recipe_key(row.recipe.name) for row in rows]
+
+
+def _run_write(action):
+    with session() as db_session:
+        action(db_session)
+        db_session.commit()
+
+
+def _run_read(action):
+    with session() as db_session:
+        return action(db_session)
+
+
+def _replace_ingredient_rows(session, row_model, items):
+    session.execute(delete(row_model))
+
+    for item_name in _unique_cleaned_items(items):
+        ingredient = get_or_create_ingredient(session, item_name)
+        if ingredient is None:
+            continue
+
+        session.add(row_model(ingredient_id=ingredient.id))
+
+
+def _store_favourite_recipe_rows(session, recipe_names, replace_all=False):
+    if replace_all:
+        _delete_favourite_recipe_rows(session)
 
     for recipe_name in recipe_names:
-        name = recipe_key(recipe_name)
+        recipe_id = _recipe_id_by_key(session, recipe_key(recipe_name))
+        if recipe_id is None:
+            continue
 
-        if name and name not in seen_names:
-            unique_recipe_names.append(name)
-            seen_names.add(name)
-
-    path.write_text("\n".join(unique_recipe_names), encoding="utf-8")
+        _upsert_favourite_recipe_row(session, recipe_id)
 
 
-def add_favourite_recipe(recipe_name, filepath):
-    favourite_names = read_favourite_recipe_names(filepath)
-    favourite_names.append(recipe_name)
-    save_favourite_recipe_names(favourite_names, filepath)
+def _upsert_favourite_recipe_row(session, recipe_id):
+    existing = session.scalar(
+        select(FavoriteRecipeRow).where(FavoriteRecipeRow.recipe_id == recipe_id)
+    )
+    if existing is None:
+        session.add(FavoriteRecipeRow(recipe_id=recipe_id))
 
 
-def remove_favourite_recipe(recipe_name, filepath):
-    name_to_remove = recipe_key(recipe_name)
-    favourite_names = [
-        name
-        for name in read_favourite_recipe_names(filepath)
-        if name != name_to_remove
-    ]
+def _delete_favourite_recipe_rows(session, recipe_id=None):
+    statement = delete(FavoriteRecipeRow)
+    if recipe_id is not None:
+        statement = statement.where(FavoriteRecipeRow.recipe_id == recipe_id)
 
-    save_favourite_recipe_names(favourite_names, filepath)
+    session.execute(statement)
 
 
-def add_missing_to_shopping_list(missing_items, filepath):
-    current_items = read_shopping_list(filepath)
-    new_items = [
-        clean_ingredient(item)
-        for item in missing_items
-        if clean_ingredient(item)
-    ]
+def load_recipes():
+    def action(db_session):
+        recipe_rows = db_session.execute(
+            select(RecipeRow)
+            .options(
+                selectinload(RecipeRow.recipe_ingredients).selectinload(
+                    RecipeIngredientRow.ingredient
+                )
+            )
+            .order_by(RecipeRow.id)
+        ).scalars().all()
 
-    save_shopping_list(current_items + new_items, filepath)
+        return [_recipe_row_to_model(recipe_row) for recipe_row in recipe_rows]
+
+    return _run_read(action)
 
 
-def remove_from_shopping_list(item, filepath):
+def save_user_ingredients(ingredients):
+    def action(db_session):
+        _replace_ingredient_rows(db_session, UserIngredientRow, ingredients)
+
+    _run_write(action)
+
+
+def add_user_ingredient(ingredient):
+    def action(db_session):
+        cleaned_ingredient = clean_ingredient(ingredient)
+        if not cleaned_ingredient:
+            return
+
+        ingredient_row = get_or_create_ingredient(db_session, cleaned_ingredient)
+        if ingredient_row is None:
+            return
+
+        existing = db_session.scalar(
+            select(UserIngredientRow).where(
+                UserIngredientRow.ingredient_id == ingredient_row.id
+            )
+        )
+        if existing is None:
+            db_session.add(UserIngredientRow(ingredient_id=ingredient_row.id))
+
+    _run_write(action)
+
+
+def read_user_ingredients():
+    return _run_read(_read_user_ingredient_names)
+
+
+def read_shopping_list():
+    return _run_read(_read_shopping_list_names)
+
+
+def save_shopping_list(items):
+    def action(db_session):
+        _replace_ingredient_rows(db_session, ShoppingListRow, items)
+
+    _run_write(action)
+
+
+def read_favourite_recipe_names():
+    return _run_read(_read_favourite_recipe_names)
+
+
+def save_favourite_recipe_names(recipe_names):
+    def action(db_session):
+        _store_favourite_recipe_rows(db_session, recipe_names, replace_all=True)
+
+    _run_write(action)
+
+
+def add_favourite_recipe(recipe_name):
+    def action(db_session):
+        _store_favourite_recipe_rows(db_session, [recipe_name])
+
+    _run_write(action)
+
+
+def remove_favourite_recipe(recipe_name):
+    def action(db_session):
+        recipe_id = _recipe_id_by_key(db_session, recipe_key(recipe_name))
+        if recipe_id is None:
+            return
+
+        _delete_favourite_recipe_rows(db_session, recipe_id)
+
+    _run_write(action)
+
+
+def add_missing_to_shopping_list(missing_items):
+    save_shopping_list(read_shopping_list() + _unique_cleaned_items(missing_items))
+
+
+def remove_from_shopping_list(item):
     item_to_remove = clean_ingredient(item)
-    current_items = read_shopping_list(filepath)
+    current_items = read_shopping_list()
 
     updated_items = [
         ingredient
@@ -132,7 +227,7 @@ def remove_from_shopping_list(item, filepath):
         if ingredient != item_to_remove
     ]
 
-    save_shopping_list(updated_items, filepath)
+    save_shopping_list(updated_items)
 
 
 def build_shopping_report(shopping_items, matched_recipes):

@@ -1,5 +1,8 @@
 from collections import Counter
 
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from models import Recipe

@@ -12,5 +12,12 @@
     "instructions": "Beat eggs and cook with cheese.",
     "cooking_time": 10,
     "difficulty": "Easy"
+  },
+  {
+    "name": "Eggs Benedict",
+    "ingredients": ["eggs", "roll", "ham", "butter", "lemon juice"],
+    "instructions": "Toast the bread roll, cook the ham, poach the eggs, and top with hollandaise sauce",
+    "cooking_time": 25,
+    "difficulty": "Medium"
   }
 ]

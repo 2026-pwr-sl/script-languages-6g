@@ -24,10 +24,6 @@ from utils import parse_ingredients
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
-RECIPES_FILE = DATA_DIR / "recipes.json"
-USER_INGREDIENTS_FILE = DATA_DIR / "user_ingredients.txt"
-SHOPPING_LIST_FILE = DATA_DIR / "shopping_list.txt"
-FAVOURITES_FILE = DATA_DIR / "favourites.txt"
 
 app = Flask(__name__)
 app.secret_key = "frinder2137glhfdonthackmeplease"
@@ -60,30 +56,46 @@ def add_favourite_status(recipes, favourite_recipe_names):
     ]
 
 
+def get_recipes_with_favourite_status():
+    recipes_list = load_recipes()
+    favourite_recipe_names = read_favourite_recipe_names()
+
+    return add_favourite_status(recipes_list, favourite_recipe_names), favourite_recipe_names
+
+
+def get_recipe_suggestions(user_ingredients):
+    recipes_list = load_recipes()
+    favourite_recipe_names = read_favourite_recipe_names()
+    suggestions = add_favourite_status(
+        match_recipes(user_ingredients, recipes_list),
+        favourite_recipe_names,
+    )
+
+    return suggestions, favourite_recipe_names
+
+
 @app.route("/quick-add", methods=["POST"])
 def quick_add():
     ingredient = request.form.get("ingredient")
-    
+
     if ingredient:
-        add_user_ingredient(ingredient, USER_INGREDIENTS_FILE)
+        add_user_ingredient(ingredient)
         flash(f"Added {ingredient} to your fridge!", "success")
-        
+
     return redirect(url_for("index", open_widget=True))
 
 
 @app.route("/")
 def index():
-    saved_items = read_user_ingredients(USER_INGREDIENTS_FILE)
-    
+    saved_items = read_user_ingredients()
+
     saved_items_str = ", ".join(saved_items)
-    
+
     return render_template("index.html", saved_items_str=saved_items_str)
 
 
 @app.route("/recipes", methods=["GET", "POST"])
 def recipes():
-    favourite_recipe_names = read_favourite_recipe_names(FAVOURITES_FILE)
-
     if request.method == "POST":
         ingredients_text = request.form.get("ingredients", "")
         uploaded_file = request.files.get("ingredients_file")
@@ -102,12 +114,8 @@ def recipes():
             flash("Please enter or upload at least one ingredient.", "error")
             return redirect(url_for("index"))
 
-        save_user_ingredients(user_ingredients, USER_INGREDIENTS_FILE)
-        recipes_list = load_recipes(RECIPES_FILE)
-        suggestions = add_favourite_status(
-            match_recipes(user_ingredients, recipes_list),
-            favourite_recipe_names,
-        )
+        save_user_ingredients(user_ingredients)
+        suggestions, favourite_recipe_names = get_recipe_suggestions(user_ingredients)
 
         return render_template(
             "recipes.html",
@@ -116,15 +124,12 @@ def recipes():
             favourite_recipe_names=favourite_recipe_names,
         )
 
-    user_ingredients = read_user_ingredients(USER_INGREDIENTS_FILE)
+    user_ingredients = read_user_ingredients()
+    favourite_recipe_names = read_favourite_recipe_names()
     suggestions = []
 
     if user_ingredients:
-        recipes_list = load_recipes(RECIPES_FILE)
-        suggestions = add_favourite_status(
-            match_recipes(user_ingredients, recipes_list),
-            favourite_recipe_names,
-        )
+        suggestions, favourite_recipe_names = get_recipe_suggestions(user_ingredients)
 
     return render_template(
         "recipes.html",
@@ -136,9 +141,7 @@ def recipes():
 
 @app.route("/all-recipes")
 def all_recipes():
-    recipes_list = load_recipes(RECIPES_FILE)
-    favourite_recipe_names = read_favourite_recipe_names(FAVOURITES_FILE)
-    recipes_list = add_favourite_status(recipes_list, favourite_recipe_names)
+    recipes_list, favourite_recipe_names = get_recipes_with_favourite_status()
 
     return render_template(
         "all_recipes.html",
@@ -149,8 +152,8 @@ def all_recipes():
 
 @app.route("/summary")
 def summary():
-    recipes_list = load_recipes(RECIPES_FILE)
-    user_ingredients = read_user_ingredients(USER_INGREDIENTS_FILE)
+    recipes_list = load_recipes()
+    user_ingredients = read_user_ingredients()
 
     if not user_ingredients:
         return render_template("summary.html", empty=True)
@@ -206,11 +209,10 @@ def summary():
 
 @app.route("/favourites")
 def favourites():
-    recipes_list = load_recipes(RECIPES_FILE)
-    favourite_recipe_names = read_favourite_recipe_names(FAVOURITES_FILE)
+    recipes_list, favourite_recipe_names = get_recipes_with_favourite_status()
     favourite_recipes = [
         recipe
-        for recipe in add_favourite_status(recipes_list, favourite_recipe_names)
+        for recipe in recipes_list
         if recipe_key(recipe.name) in favourite_recipe_names
     ]
 
@@ -228,7 +230,7 @@ def add_to_favourites():
     if not recipe_key(recipe_name):
         flash("Recipe could not be added to favourites.", "error")
     else:
-        add_favourite_recipe(recipe_name, FAVOURITES_FILE)
+        add_favourite_recipe(recipe_name)
         flash(f"{recipe_name} added to favourites.", "success")
 
     return redirect(request.referrer or url_for("favourites"))
@@ -241,19 +243,19 @@ def remove_from_favourites():
     if not recipe_key(recipe_name):
         flash("Recipe could not be removed from favourites.", "error")
     else:
-        remove_favourite_recipe(recipe_name, FAVOURITES_FILE)
+        remove_favourite_recipe(recipe_name)
         flash(f"{recipe_name} removed from favourites.", "success")
 
     return redirect(request.referrer or url_for("favourites"))
 
 
 def get_latest_recipe_matches():
-    user_ingredients = read_user_ingredients(USER_INGREDIENTS_FILE)
+    user_ingredients = read_user_ingredients()
 
     if not user_ingredients:
         return []
 
-    recipes_list = load_recipes(RECIPES_FILE)
+    recipes_list = load_recipes()
     suggestions = match_recipes(user_ingredients, recipes_list)
 
     return [
@@ -265,7 +267,7 @@ def get_latest_recipe_matches():
 
 @app.route("/shopping-list")
 def shopping_list():
-    shopping_items = read_shopping_list(SHOPPING_LIST_FILE)
+    shopping_items = read_shopping_list()
     matched_recipes = get_latest_recipe_matches()
     report_text = build_shopping_report(shopping_items, matched_recipes)
 
@@ -280,7 +282,7 @@ def shopping_list():
 @app.route("/shopping-list/add", methods=["POST"])
 def add_to_shopping_list():
     missing_items = request.form.getlist("missing_ingredients")
-    add_missing_to_shopping_list(missing_items, SHOPPING_LIST_FILE)
+    add_missing_to_shopping_list(missing_items)
 
     return redirect(request.referrer or url_for("shopping_list"))
 
@@ -288,7 +290,7 @@ def add_to_shopping_list():
 @app.route("/shopping-list/remove", methods=["POST"])
 def remove_shopping_item():
     ingredient = request.form.get("ingredient", "")
-    remove_from_shopping_list(ingredient, SHOPPING_LIST_FILE)
+    remove_from_shopping_list(ingredient)
 
     flash(f"{ingredient} removed from shopping list.", "success")
     return redirect(url_for("shopping_list"))
@@ -296,7 +298,7 @@ def remove_shopping_item():
 
 @app.route("/shopping-list/download")
 def download_shopping_list():
-    shopping_items = read_shopping_list(SHOPPING_LIST_FILE)
+    shopping_items = read_shopping_list()
     matched_recipes = get_latest_recipe_matches()
     report_text = build_shopping_report(shopping_items, matched_recipes)
 

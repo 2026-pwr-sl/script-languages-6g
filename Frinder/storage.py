@@ -8,6 +8,7 @@ from db_models import (
     RecipeRow,
     ShoppingListRow,
     UserIngredientRow,
+    IngredientRow
 )
 from models import Recipe
 from seed import get_or_create_ingredient
@@ -238,13 +239,22 @@ def build_shopping_report(shopping_items, matched_recipes):
 
 
 def remove_user_ingredient(ingredient):
-    item_to_remove = clean_ingredient(ingredient)
-    current_items = read_user_ingredients()
+    def action(db_session):
+        item_to_remove = clean_ingredient(ingredient)
+        if not item_to_remove:
+            return
 
-    updated_items = [
-        item
-        for item in current_items
-        if item != item_to_remove
-    ]
+        ingredient_row = db_session.scalar(
+            select(IngredientRow).where(IngredientRow.name == item_to_remove)
+        )
+        
+        if ingredient_row is None:
+            return
 
-    save_user_ingredients(updated_items)
+        db_session.execute(
+            delete(UserIngredientRow).where(
+                UserIngredientRow.ingredient_id == ingredient_row.id
+            )
+        )
+
+    _run_write(action)

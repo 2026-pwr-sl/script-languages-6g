@@ -1,17 +1,135 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="summary-wrapper">
-  <h1 class="page-title">Inventory & Recipe Analytics</h1>
+<section class="summary-hero">
+  <div>
+    <p class="summary-kicker">Summary</p>
+    <h1>Inventory & Recipe Analytics</h1>
+    <p class="summary-intro">
+      See what you can cook right now, what you are closest to making, and which
+      ingredients show up most often as missing.
+    </p>
+  </div>
 
-  {% if empty %}
-    <div class="recipe-card">
-      <h2>No Ingredients found</h2>
-      <p>Go back to the home view dashboard page and supply ingredients to run summaries.</p>
-      <a href="{{ url_for('index') }}" class="btn-primary">Go to Dashboard</a>
+  <div class="summary-hero__actions">
+    <a href="{{ url_for('recipes') }}" class="summary-button">Find Recipes</a>
+    <a href="{{ url_for('shopping_list') }}" class="summary-button summary-button--secondary">Shopping List</a>
+  </div>
+</section>
+
+{% if empty %}
+  <section class="summary-empty recipe-card">
+    <h2>No ingredients found</h2>
+    <p>
+      Go back to the home page, add a few ingredients, and then return here to
+      generate your summary charts.
+    </p>
+    <a href="{{ url_for('index') }}" class="summary-button">Go to Home</a>
+  </section>
+{% else %}
+  <section class="summary-recommendation">
+    <div class="summary-recommendation__copy">
+      <p class="summary-kicker">Recommendation</p>
+      <h2>{{ recommendation }}</h2>
+      <p>
+        This is the fastest read on your current kitchen state. Use it to decide
+        whether to cook now or top up your pantry first.
+      </p>
+      <div class="summary-recommendation__meta">
+        <span class="summary-recommendation__meta-label">Average match</span>
+        <strong class="summary-recommendation__meta-value">{{ avg_match }}%</strong>
+      </div>
     </div>
-  {% else %}
-    
-  {% endif %}
-</div>
+  </section>
+
+  <section class="summary-stats">
+    <article class="summary-stat-card summary-stat-card--stock">
+      <span class="summary-stat-label">Available ingredients</span>
+      <strong class="summary-stat-value">{{ total_available }}</strong>
+    </article>
+
+    <article class="summary-stat-card summary-stat-card--recipes">
+      <span class="summary-stat-label">Suggested recipes</span>
+      <strong class="summary-stat-value">{{ total_suggested }}</strong>
+    </article>
+
+    <article class="summary-stat-card summary-stat-card--best">
+      <span class="summary-stat-label">Best match</span>
+      <strong class="summary-stat-value">{{ best_match }}%</strong>
+    </article>
+
+    <article class="summary-stat-card summary-stat-card--wide summary-stat-card--missing">
+      <span class="summary-stat-label">Most common missing ingredient</span>
+      <strong class="summary-stat-value summary-stat-value--small">{{ most_common_missing }}</strong>
+    </article>
+  </section>
+
+  <section class="summary-grid">
+    <article class="summary-panel summary-panel--table">
+      <div class="summary-panel__header">
+        <div>
+          <p class="summary-kicker">Ingredients</p>
+          <h2>Most common missing items</h2>
+          <p class="summary-panel__lede">These are the recurring ingredients holding back your top matches.</p>
+        </div>
+        <span class="summary-chip summary-chip--neutral">Top 10</span>
+      </div>
+
+      {% if missing_table_data %}
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Ingredient</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ingredient, count in missing_table_data %}
+              <tr>
+                <td>{{ ingredient|capitalize }}</td>
+                <td>{{ count }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="summary-empty-message">No missing ingredients were found in the current matches.</p>
+      {% endif %}
+    </article>
+
+    <article class="summary-panel summary-panel--chart">
+      <div class="summary-panel__header">
+        <div>
+          <p class="summary-kicker">Visualization</p>
+          <h2>Missing ingredients chart</h2>
+          <p class="summary-panel__lede">A quick way to spot the items that appear most often across recipes.</p>
+        </div>
+        <span class="summary-chip">Based on your matches</span>
+      </div>
+
+      {% if graph_missing_url %}
+        <img class="summary-chart" src="{{ graph_missing_url }}" alt="Chart showing the most common missing ingredients">
+      {% else %}
+        <p class="summary-empty-message">Missing ingredients chart is not available yet.</p>
+      {% endif %}
+    </article>
+
+    <article class="summary-panel summary-panel--wide summary-panel--chart">
+      <div class="summary-panel__header">
+        <div>
+          <p class="summary-kicker">Difficulty</p>
+          <h2>Recipe difficulty chart</h2>
+          <p class="summary-panel__lede">This helps balance easy wins against the more ambitious recipes.</p>
+        </div>
+        <span class="summary-chip">Overview</span>
+      </div>
+
+      {% if graph_difficulty_url %}
+        <img class="summary-chart summary-chart--wide" src="{{ graph_difficulty_url }}" alt="Chart showing recipe difficulty distribution">
+      {% else %}
+        <p class="summary-empty-message">Difficulty chart is not available yet.</p>
+      {% endif %}
+    </article>
+  </section>
+{% endif %}
 {% endblock %}

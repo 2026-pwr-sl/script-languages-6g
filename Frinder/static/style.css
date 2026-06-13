@@ -927,3 +927,110 @@ button {
   margin-top: 8px;
   font-size: 0.95rem;
 }
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #0C9961, #1f4f46);
+    padding: 12px 0;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.16);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+}
+
+.nav-brand:hover {
+    opacity: 0.92;
+}
+
+.nav-brand__icon {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.nav-links li {
+    display: block;
+    margin: 0;
+}
+
+.nav-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 0.98rem;
+    font-weight: 700;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.nav-links a.active {
+    background: white;
+    color: #1f4f46;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+}
+
+@media (max-width: 760px) {
+    .nav-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 18px;
+    }
+
+    .nav-links {
+        width: 100%;
+        gap: 6px;
+    }
+
+    .nav-links a {
+        font-size: 0.92rem;
+        padding: 7px 11px;
+    }
+}

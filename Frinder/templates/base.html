@@ -1,38 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frinder</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Frinder{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav class="navbar">
-    <div class="nav-brand">
-      <a href="{{ url_for('index') }}">Frinder</a>
-    </div>
-    <ul class="nav-links">
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-        <li><a href="{{ url_for('recipes') }}">Recipes</a></li>
-        <li><a href="{{ url_for('all_recipes') }}">All Recipes</a></li>
-        <li><a href="{{ url_for('summary') }}">Summary</a></li>
-        <li><a href="{{ url_for('favourites') }}">Favourites</a></li>
-        <li><a href="{{ url_for('shopping_list') }}">Shopping List</a></li>
-    </ul>
-  </nav>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="nav-brand" href="{{ url_for('index') }}" aria-label="Frinder home">
+                <span class="nav-brand__icon">🥗</span>
+                <span>Frinder</span>
+            </a>
 
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flash-messages">
-          {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+            <ul class="nav-links">
+                <li>
+                    <a class="{{ 'active' if request.endpoint == 'index' else '' }}"
+                       href="{{ url_for('index') }}">
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ 'active' if request.endpoint == 'recipes' else '' }}"
+                       href="{{ url_for('recipes') }}">
+                        Recipes
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ 'active' if request.endpoint == 'all_recipes' else '' }}"
+                       href="{{ url_for('all_recipes') }}">
+                        All Recipes
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ 'active' if request.endpoint == 'summary' else '' }}"
+                       href="{{ url_for('summary') }}">
+                        Summary
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ 'active' if request.endpoint == 'favourites' else '' }}"
+                       href="{{ url_for('favourites') }}">
+                        Favourites
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ 'active' if request.endpoint == 'shopping_list' else '' }}"
+                       href="{{ url_for('shopping_list') }}">
+                        Shopping List
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-    {% block content %}{% endblock %}
-  </main>
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>

@@ -1,93 +1,96 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<section class="recipes-banner">
-    <p class="recipes-banner__label">Recipe Suggestions</p>
-    <h1>Recipes matched to your ingredients</h1>
-    <p>
-        Edit your ingredients below and refresh the suggestions.
-        Only recipes with a match above 0% are shown.
-    </p>
-</section>
-
 <section class="selected-ingredients-box">
-    <h2>Your Ingredients</h2>
+  <h2>Your Ingredients</h2>
 
-    <form action="{{ url_for('recipes') }}" method="POST" class="ingredients-edit-form">
-        <textarea
-            name="ingredients"
-            class="ingredients-edit-form__textarea"
-            placeholder="eggs, milk, flour"
-        >{{ user_ingredients | join(', ') }}</textarea>
+  <form class="ingredients-edit-form" method="post" action="{{ url_for('recipes') }}">
+    <textarea
+      class="ingredients-edit-form__textarea"
+      name="ingredients"
+      aria-label="Your ingredients"
+    >{{ user_ingredients | join(', ') }}</textarea>
 
-        <button type="submit" class="ingredients-edit-form__button">
-            Update Recipes
-        </button>
-    </form>
+    <button class="ingredients-edit-form__button" type="submit">
+      Update Recipes
+    </button>
+  </form>
 </section>
 
 <section class="recipes-scroll">
-    <div class="recipes-grid">
-        {% for recipe in suggestions if recipe.match_score > 0 %}
-            <article class="recipe-card{% if recipe.is_favourite %} recipe-card--favourite{% endif %}">
-                <div class="recipe-card__top">
-                    <h3 class="recipe-card__title">{{ recipe.name }}</h3>
-                    <span class="recipe-card__badge">{{ recipe.match_score }}% match</span>
-                </div>
+  <div class="recipes-grid">
+    {% for recipe in suggestions if recipe.match_score > 0 %}
+      <article class="recipe-card {% if recipe.is_favourite %}recipe-card--favourite{% endif %}">
+        <div class="recipe-card__header">
+          <span class="recipe-card__match">{{ recipe.match_score }}% match</span>
 
-                <div class="recipe-card__meta">
-                    <span>{{ recipe.cooking_time }} minutes</span>
-                    <span>{{ recipe.difficulty }}</span>
-                </div>
+          <span class="difficulty-badge difficulty-badge--{{ recipe.difficulty | lower }}">
+            {{ recipe.difficulty }}
+          </span>
+        </div>
 
-                <div class="recipe-card__section">
-                    <h4>Available ingredients</h4>
-                    <ul class="recipe-card__list">
-                        {% for item in recipe.available_ingredients %}
-                            <li>{{ item }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+        <h3 class="recipe-card__title">
+          {% if recipe.is_favourite %}
+            <span class="recipe-card__star">★</span>
+          {% endif %}
+          {{ recipe.name }}
+        </h3>
 
-                <div class="recipe-card__section">
-                    <h4>Missing ingredients</h4>
-                    <ul class="recipe-card__list">
-                        {% for item in recipe.missing_ingredients %}
-                            <li>{{ item }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+        <div class="recipe-card__info-row">
+          <span>{{ recipe.cooking_time }} min</span>
+          <span>{{ recipe.ingredients | length }} ingredients</span>
+        </div>
 
-                <div class="recipe-card__section">
-                    <h4>Instructions</h4>
-                    <p>{{ recipe.instructions }}</p>
-                </div>
+        <div class="recipe-card__section">
+          <h4>Available ingredients</h4>
+          <ul class="recipe-card__list">
+            {% for item in recipe.available_ingredients %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
 
-                <div class="recipe-card__actions">
-                    {% if recipe.is_favourite %}
-                        <form action="{{ url_for('remove_from_favourites') }}" method="POST">
-                            <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
-                            <button type="submit" class="favourite-button favourite-button--active">
-                                Remove from Favourites
-                            </button>
-                        </form>
-                    {% else %}
-                        <form action="{{ url_for('add_to_favourites') }}" method="POST">
-                            <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
-                            <button type="submit" class="favourite-button">
-                                Add to Favourites
-                            </button>
-                        </form>
-                    {% endif %}
-                </div>
-            </article>
-        {% else %}
-            <p class="recipes-empty-message">
-                No matching recipes yet. Add more ingredients and try again.
-            </p>
-        {% endfor %}
-    </div>
+        <div class="recipe-card__section">
+          <h4>Missing ingredients</h4>
+          {% if recipe.missing_ingredients %}
+            <ul class="recipe-card__list">
+              {% for item in recipe.missing_ingredients %}
+                <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="recipe-card__ready">You have everything needed.</p>
+          {% endif %}
+        </div>
+
+        <div class="recipe-card__section recipe-card__instructions">
+          <h4>Instructions</h4>
+          <p>{{ recipe.instructions }}</p>
+        </div>
+
+        <div class="recipe-card__actions">
+          {% if recipe.is_favourite %}
+            <form method="post" action="{{ url_for('remove_from_favourites') }}">
+              <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
+              <button class="favourite-button favourite-button--active" type="submit">
+                ★ Remove from Favourites
+              </button>
+            </form>
+          {% else %}
+            <form method="post" action="{{ url_for('add_to_favourites') }}">
+              <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
+              <button class="favourite-button" type="submit">
+                ☆ Add to Favourites
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </article>
+    {% else %}
+      <p class="recipes-empty-message">
+        No matching recipes yet. Add more ingredients and try again.
+      </p>
+    {% endfor %}
+  </div>
 </section>
-
 {% endblock %}

@@ -5,6 +5,7 @@
   <header class="homepage-header">
     <h1>Enter ingredients, upload a .txt file, or pick from our quick list to get recipe ideas.</h1>
   </header>
+  
   <form action="{{ url_for('quick_add') }}" method="POST">
     <details class="quick-add-widget" {% if request.args.get('open_widget') %}open{% endif %}>
       <summary class="quick-add-summary">
@@ -13,38 +14,89 @@
       <table class="quick-add-table">
         <tbody>
           <tr>
+            <th>Basics</th>
+            <td>
+              <button type="submit" name="ingredient" value="eggs" class="quick-add-btn">+ Eggs</button>
+              <button type="submit" name="ingredient" value="sugar" class="quick-add-btn">+ Sugar</button>
+              <button type="submit" name="ingredient" value="salt" class="quick-add-btn">+ Salt</button>
+              <button type="submit" name="ingredient" value="pepper" class="quick-add-btn">+ Pepper</button>
+              <button type="submit" name="ingredient" value="oil" class="quick-add-btn">+ Oil</button>
+            </td>
+          </tr>
+          
+          <tr>
+            <th>Vegetables</th>
+            <td>
+              <button type="submit" name="ingredient" value="onion" class="quick-add-btn">+ Onion</button>
+              <button type="submit" name="ingredient" value="garlic" class="quick-add-btn">+ Garlic</button>
+              <button type="submit" name="ingredient" value="tomato" class="quick-add-btn">+ Tomato</button>
+              <button type="submit" name="ingredient" value="potato" class="quick-add-btn">+ Potato</button>
+              <button type="submit" name="ingredient" value="carrot" class="quick-add-btn">+ Carrot</button>
+            </td>
+          </tr>
+          
+          <tr>
+            <th>Meat</th>
+            <td>
+              <button type="submit" name="ingredient" value="chicken" class="quick-add-btn">+ Chicken</button>
+              <button type="submit" name="ingredient" value="beef" class="quick-add-btn">+ Beef</button>
+              <button type="submit" name="ingredient" value="pork" class="quick-add-btn">+ Pork</button>
+              <button type="submit" name="ingredient" value="lamb" class="quick-add-btn">+ Lamb</button>
+              <button type="submit" name="ingredient" value="ham" class="quick-add-btn">+ Ham</button>
+              <button type="submit" name="ingredient" value="bacon" class="quick-add-btn">+ Bacon</button>
+            </td>
+          </tr>
+          
+          <tr>
+            <th>Fish & Seafood</th>
+            <td>
+              <button type="submit" name="ingredient" value="salmon" class="quick-add-btn">+ Salmon</button>
+              <button type="submit" name="ingredient" value="tuna" class="quick-add-btn">+ Tuna</button>
+              <button type="submit" name="ingredient" value="shrimp" class="quick-add-btn">+ Shrimp</button>
+            </td>
+          </tr>
+          
+          <tr>
             <th>Dairy</th>
             <td>
               <button type="submit" name="ingredient" value="cheese" class="quick-add-btn">+ Cheese</button>
               <button type="submit" name="ingredient" value="milk" class="quick-add-btn">+ Milk</button>
               <button type="submit" name="ingredient" value="butter" class="quick-add-btn">+ Butter</button>
+              <button type="submit" name="ingredient" value="yogurt" class="quick-add-btn">+ Yogurt</button>
             </td>
           </tr>
+          
           <tr>
-            <th>Pantry</th>
+            <th>Grains</th>
             <td>
               <button type="submit" name="ingredient" value="flour" class="quick-add-btn">+ Flour</button>
               <button type="submit" name="ingredient" value="rice" class="quick-add-btn">+ Rice</button>
               <button type="submit" name="ingredient" value="pasta" class="quick-add-btn">+ Pasta</button>
+              <button type="submit" name="ingredient" value="bread" class="quick-add-btn">+ Bread</button>
+              <button type="submit" name="ingredient" value="roll" class="quick-add-btn">+ Roll</button>
             </td>
           </tr>
+          
           <tr>
-            <th>Vegetables & Meat</th>
+            <th>Fruits</th>
             <td>
-              <button type="submit" name="ingredient" value="onion" class="quick-add-btn">+ Onion</button>
-              <button type="submit" name="ingredient" value="garlic" class="quick-add-btn">+ Garlic</button>
-              <button type="submit" name="ingredient" value="chicken" class="quick-add-btn">+ Chicken</button>
+              <button type="submit" name="ingredient" value="apple" class="quick-add-btn">+ Apple</button>
+              <button type="submit" name="ingredient" value="banana" class="quick-add-btn">+ Banana</button>
+              <button type="submit" name="ingredient" value="lemon" class="quick-add-btn">+ Lemon</button>
             </td>
           </tr>
+          
           <tr>
             <th>Other</th>
             <td>
-              <button type="submit" name="ingredient" value="sugar" class="quick-add-btn">+ Sugar</button>
-              <button type="submit" name="ingredient" value="salt" class="quick-add-btn">+ Salt</button>
-              <button type="submit" name="ingredient" value="pepper" class="quick-add-btn">+ Pepper</button>
-              <button type="submit" name="ingredient" value="eggs" class="quick-add-btn">+ Eggs</button>
+              <button type="submit" name="ingredient" value="lemon juice" class="quick-add-btn">+ Lemon Juice</button>
+              <button type="submit" name="ingredient" value="vinegar" class="quick-add-btn">+ Vinegar</button>
+              <button type="submit" name="ingredient" value="soy sauce" class="quick-add-btn">+ Soy Sauce</button>
+              <button type="submit" name="ingredient" value="honey" class="quick-add-btn">+ Honey</button>
+              <button type="submit" name="ingredient" value="mustard" class="quick-add-btn">+ Mustard</button>
             </td>
           </tr>
+
         </tbody>
       </table>
     </details>

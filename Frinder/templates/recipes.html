@@ -14,23 +14,17 @@
 <section class="selected-ingredients-box">
     <h2>Your Ingredients</h2>
 
-    <div class="ingredients-edit-form-container">
-        <div class="ingredients-tags-container">
-            {% for item in user_ingredients %}
-                <div class="ingredient-tag">
-                    <span class="tag-text">{{ item }}</span>
-                    <form action="{{ url_for('remove_ingredient') }}" method="POST">
-                        <input type="hidden" name="ingredient" value="{{ item }}">
-                        <button type="submit" class="tag-delete-icon">×</button>
-                    </form>
-                </div>
-            {% endfor %}
-        </div>
-        
-        <a href="{{ url_for('index') }}" class="ingredients-edit-form__button">
-            Add Ingredients
-        </a>
-    </div>
+    <form action="{{ url_for('recipes') }}" method="POST" class="ingredients-edit-form">
+        <textarea
+            name="ingredients"
+            class="ingredients-edit-form__textarea"
+            placeholder="eggs, milk, flour"
+        >{{ user_ingredients | join(', ') }}</textarea>
+
+        <button type="submit" class="ingredients-edit-form__button">
+            Update Recipes
+        </button>
+    </form>
 </section>
 
 <section class="recipes-scroll">

@@ -217,6 +217,14 @@ button {
   white-space: nowrap;
 }
 
+.ingredients-edit-form__button {
+    align-self: flex-start;
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    padding: 10px 20px;
+}
+
 .ingredients-edit-form__button:hover,
 .shopping-button:hover,
 .primary-submit-btn:hover {
@@ -887,6 +895,124 @@ button {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+.quick-add-widget {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid #686873;
+}
+
+.quick-add-summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #1f4f46;
+  font-size: 1.1rem;
+}
+
+.quick-add-table {
+  width: 80%;
+  margin-top: 16px;
+}
+
+.quick-add-table th,
+.quick-add-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+}
+
+.quick-add-table th {
+  width: 40%;
+  color: #475569;
+  font-weight: 600;
+}
+
+.quick-add-btn {
+  background-color: #d2ffe2;
+  color: #0f9e65;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 6px 14px;
+  margin: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.quick-add-btn:hover {
+  background-color: #bbf7d0;
+  transform: translateY(-1px);
+}
+
+.homepage-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 16px;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: #ffffff;
+  resize: none;
+}
+
+.file-input {
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+.ingredients-edit-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.ingredients-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  min-height: 54px;
+  box-sizing: border-box;
+}
+
+.ingredient-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #e2e8f0;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+.ingredient-tag:hover {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.tag-delete-icon {
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 0 0 2px;
 }
 
 @media (max-width: 760px) {

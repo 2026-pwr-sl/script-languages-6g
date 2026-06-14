@@ -7,6 +7,8 @@
   <p>Recipes you saved for later are collected here.</p>
 </section>
 
+{% include "_recipe_filters.html" %}
+
 <section class="favourites-section">
   {% if recipes %}
     <div class="recipes-grid">
@@ -54,7 +56,9 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="recipes-empty-message">You have not added any favourite recipes yet.</p>
+    <p class="recipes-empty-message">
+      No favourite recipes match the current search and filters.
+    </p>
   {% endif %}
 </section>
 {% endblock %}

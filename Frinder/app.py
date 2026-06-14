@@ -34,6 +34,7 @@ from utils import parse_ingredients
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
+MAX_COOKING_TIME_FILTERS = [15, 30, 45, 60]
 
 app = Flask(__name__)
 app.secret_key = "frinder2137glhfdonthackmeplease"
@@ -121,6 +122,81 @@ def get_recipe_suggestions(
     )
 
     return suggestions, favourite_recipe_names
+
+
+def get_recipe_filter_state():
+    max_time = request.args.get("max_time", "").strip()
+    valid_max_times = {str(option) for option in MAX_COOKING_TIME_FILTERS}
+
+    if max_time not in valid_max_times:
+        max_time = ""
+
+    return {
+        "q": request.args.get("q", "").strip(),
+        "difficulty": request.args.get("difficulty", "").strip(),
+        "max_time": max_time,
+    }
+
+
+def get_recipe_difficulty_options(recipes):
+    return sorted(
+        {
+            recipe.difficulty
+            for recipe in recipes
+            if recipe.difficulty
+        }
+    )
+
+
+def recipe_matches_search(recipe, search_text):
+    if not search_text:
+        return True
+
+    search_value = search_text.lower()
+    searchable_parts = [
+        recipe.name,
+        recipe.instructions,
+        recipe.difficulty,
+        *recipe.ingredients,
+    ]
+
+    return any(search_value in str(part).lower() for part in searchable_parts)
+
+
+def filter_recipe_list(recipes, filters):
+    filtered_recipes = []
+    max_time = int(filters["max_time"]) if filters["max_time"] else None
+
+    for recipe in recipes:
+        if not recipe_matches_search(recipe, filters["q"]):
+            continue
+
+        if (
+            filters["difficulty"]
+            and recipe.difficulty.lower() != filters["difficulty"].lower()
+        ):
+            continue
+
+        if max_time is not None and recipe.cooking_time > max_time:
+            continue
+
+        filtered_recipes.append(recipe)
+
+    return filtered_recipes
+
+
+def build_recipe_filter_context(recipes, filtered_recipes, filters, endpoint):
+    return {
+        "recipe_filters": filters,
+        "recipe_filter_endpoint": endpoint,
+        "difficulty_filter_options": get_recipe_difficulty_options(recipes),
+        "max_time_filter_options": MAX_COOKING_TIME_FILTERS,
+        "filtered_recipe_count": len(filtered_recipes),
+        "total_recipe_count": len(recipes),
+        "has_active_recipe_filters": bool(
+            filters["q"] or filters["difficulty"] or filters["max_time"]
+        ),
+    }
 
 
 @app.route("/quick-add", methods=["POST"])
@@ -224,11 +300,19 @@ def remove_ingredient():
 @app.route("/all-recipes")
 def all_recipes():
     recipes_list, favourite_recipe_names = get_recipes_with_favourite_status()
+    filters = get_recipe_filter_state()
+    filtered_recipes = filter_recipe_list(recipes_list, filters)
 
     return render_template(
         "all_recipes.html",
-        recipes=recipes_list,
+        recipes=filtered_recipes,
         favourite_recipe_names=favourite_recipe_names,
+        **build_recipe_filter_context(
+            recipes_list,
+            filtered_recipes,
+            filters,
+            "all_recipes",
+        ),
     )
 
 
@@ -310,11 +394,19 @@ def favourites():
         for recipe in recipes_list
         if recipe_key(recipe.name) in favourite_recipe_names
     ]
+    filters = get_recipe_filter_state()
+    filtered_favourite_recipes = filter_recipe_list(favourite_recipes, filters)
 
     return render_template(
         "favourites.html",
-        recipes=favourite_recipes,
+        recipes=filtered_favourite_recipes,
         favourite_recipe_names=favourite_recipe_names,
+        **build_recipe_filter_context(
+            favourite_recipes,
+            filtered_favourite_recipes,
+            filters,
+            "favourites",
+        ),
     )
 
 

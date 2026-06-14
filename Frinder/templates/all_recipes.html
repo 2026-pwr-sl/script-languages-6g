@@ -7,6 +7,8 @@
   <p>Here you can see every recipe available in Frinder.</p>
 </section>
 
+{% include "_recipe_filters.html" %}
+
 <section class="all-recipes-section">
   {% if recipes %}
     <div class="recipes-grid">
@@ -65,7 +67,9 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="recipes-empty-message">No recipes available yet.</p>
+    <p class="recipes-empty-message">
+      No recipes match the current search and filters.
+    </p>
   {% endif %}
 </section>
 {% endblock %}

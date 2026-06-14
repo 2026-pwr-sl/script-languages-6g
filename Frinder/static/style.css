@@ -461,6 +461,86 @@ button {
   grid-column: 1 / -1;
 }
 
+.recipe-filter-panel {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.recipe-filter-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) minmax(150px, 1fr) minmax(140px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.recipe-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #1f4f46;
+  font-weight: 800;
+}
+
+.recipe-filter-field input,
+.recipe-filter-field select {
+  min-height: 44px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #24324a;
+  font: inherit;
+  padding: 9px 12px;
+}
+
+.recipe-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recipe-filter-button,
+.recipe-filter-reset {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.recipe-filter-button {
+  border: none;
+  background: #0C9961;
+  color: white;
+  cursor: pointer;
+  padding: 0 18px;
+}
+
+.recipe-filter-reset {
+  color: #1f4f46;
+  padding: 0 8px;
+}
+
+.recipe-filter-button:hover,
+.recipe-filter-reset:hover {
+  opacity: 0.9;
+}
+
+.recipe-filter-count {
+  margin: 12px 0 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .favourites-empty,
 .summary-empty {
   border-top: 5px solid #D6A92D;
@@ -985,6 +1065,14 @@ button {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .recipe-filter-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .recipe-filter-actions {
+    grid-column: 1 / -1;
+  }
 }
 
 .quick-add-widget {
@@ -1143,5 +1231,13 @@ button {
 
   .recipe-card__meta {
     width: 100%;
+  }
+
+  .recipe-filter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .recipe-filter-actions {
+    grid-column: auto;
   }
 }

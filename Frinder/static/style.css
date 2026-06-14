@@ -526,10 +526,16 @@ button {
 }
 
 .shopping-recipe {
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 14px;
-  background: #f8fafc;
+  border-top: 5px solid #1f4f46;
+}
+
+.shopping-recipe .recipe-card__actions {
+  margin: auto 0 0;
+  padding-top: 10px;
+}
+
+.shopping-recipe .shopping-button {
+  width: 100%;
 }
 
 .homepage-header {

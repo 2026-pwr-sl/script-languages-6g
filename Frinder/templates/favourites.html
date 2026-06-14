@@ -1,62 +1,60 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<section class="favourites-banner">
-    <p class="favourites-banner__label">Favourites</p>
-    <h1>Your Favourite Recipes</h1>
-    <p>
-        Recipes you saved for later are collected here.
-    </p>
+<section class="recipes-banner">
+  <p class="recipes-banner__label">Favourites</p>
+  <h1>Your Favourite Recipes</h1>
+  <p>Recipes you saved for later are collected here.</p>
 </section>
 
 <section class="favourites-section">
-    {% if recipes %}
-        <div class="favourites-grid">
-            {% for recipe in recipes %}
-                <article class="recipe-card recipe-card--favourite">
-                    <div class="recipe-card__top">
-                        <h3 class="recipe-card__title">{{ recipe.name }}</h3>
-                        <span class="recipe-card__badge">
-                            {{ recipe.difficulty }}
-                        </span>
-                    </div>
+  {% if recipes %}
+    <div class="recipes-grid">
+      {% for recipe in recipes %}
+        <article class="recipe-card recipe-card--favourite">
+          <div class="recipe-card__header">
+            <h3 class="recipe-card__title">
+              <span class="recipe-card__star">★</span>
+              {{ recipe.name }}
+            </h3>
 
-                    <div class="recipe-card__meta">
-                        <span>{{ recipe.cooking_time }} minutes</span>
-                        <span>{{ recipe.ingredients | length }} ingredients</span>
-                    </div>
+            <span class="difficulty-badge difficulty-badge--{{ recipe.difficulty | lower }}">
+              {{ recipe.difficulty }}
+            </span>
+          </div>
 
-                    <div class="recipe-card__section">
-                        <h4>Ingredients</h4>
-                        <ul class="recipe-card__list">
-                            {% for ingredient in recipe.ingredients %}
-                                <li>{{ ingredient }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+          <div class="recipe-card__info-row">
+            <span>{{ recipe.cooking_time }} min</span>
+            <span>{{ recipe.ingredients | length }} ingredients</span>
+          </div>
 
-                    <div class="recipe-card__section">
-                        <h4>Instructions</h4>
-                        <p>{{ recipe.instructions }}</p>
-                    </div>
+          <div class="recipe-card__section">
+            <h4>Ingredients</h4>
+            <ul class="recipe-card__list">
+              {% for ingredient in recipe.ingredients %}
+                <li>{{ ingredient }}</li>
+              {% endfor %}
+            </ul>
+          </div>
 
-                    <div class="recipe-card__actions">
-                        <form action="{{ url_for('remove_from_favourites') }}" method="POST">
-                            <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
-                            <button type="submit" class="favourite-button favourite-button--active">
-                                Remove from Favourites
-                            </button>
-                        </form>
-                    </div>
-                </article>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="favourites-empty">
-            You have not added any favourite recipes yet.
-        </p>
-    {% endif %}
+          <div class="recipe-card__section recipe-card__instructions">
+            <h4>Instructions</h4>
+            <p>{{ recipe.instructions }}</p>
+          </div>
+
+          <div class="recipe-card__actions">
+            <form method="post" action="{{ url_for('remove_from_favourites') }}">
+              <input type="hidden" name="recipe_name" value="{{ recipe.name }}">
+              <button class="favourite-button favourite-button--active" type="submit">
+                ★ Remove from Favourites
+              </button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="recipes-empty-message">You have not added any favourite recipes yet.</p>
+  {% endif %}
 </section>
-
 {% endblock %}

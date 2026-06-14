@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import json
+
 from flask import Flask, Response, flash, redirect, render_template, request, url_for
 
 from collections import Counter
@@ -25,6 +27,7 @@ from utils import parse_ingredients
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
+HISTORY_FILE = DATA_DIR / "match_history.json"
 
 app = Flask(__name__)
 app.secret_key = "frinder2137glhfdonthackmeplease"
@@ -67,8 +70,12 @@ def get_recipes_with_favourite_status():
 def get_recipe_suggestions(user_ingredients):
     recipes_list = load_recipes()
     favourite_recipe_names = read_favourite_recipe_names()
+    raw_suggestions = match_recipes(user_ingredients, recipes_list)
+    
+    save_match_history(user_ingredients, raw_suggestions)
+    
     suggestions = add_favourite_status(
-        match_recipes(user_ingredients, recipes_list),
+        raw_suggestions,
         favourite_recipe_names,
     )
 
@@ -162,16 +169,37 @@ def all_recipes():
 
 @app.route("/summary")
 def summary():
-    recipes_list = load_recipes()
     user_ingredients = read_user_ingredients()
 
-    if not user_ingredients:
+    if not user_ingredients or not HISTORY_FILE.exists():
         return render_template("summary.html", empty=True)
 
-    suggestions = match_recipes(user_ingredients, recipes_list)
+    with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    total_available = len(user_ingredients)
-    total_suggested = len(suggestions)
+    filename_missing = "summary_missing.png"
+    filename_difficulty = "summary_difficulty.png"
+
+    return render_template(
+        "summary.html",
+        empty=False,
+        total_available=data.get("total_available", 0),
+        total_suggested=data.get("total_suggested", 0),
+        best_match=data.get("best_match", 0),
+        avg_match=data.get("avg_match", 0),
+        most_common_missing=data.get("most_common_missing", "None"),
+        recommendation=data.get("recommendation", ""),
+        missing_table_data=data.get("missing_table_data", []),
+        graph_missing_url=url_for('static', filename=filename_missing),
+        graph_difficulty_url=url_for('static', filename=filename_difficulty)
+    )
+    
+
+def save_match_history(user_ingredients, suggestions):
+    if not user_ingredients:
+        if HISTORY_FILE.exists():
+            HISTORY_FILE.unlink()
+        return
 
     match_scores = [s.match_score for s in suggestions]
     best_match = max(match_scores, default=0)
@@ -194,26 +222,27 @@ def summary():
     else:
         recommendation = "You can cook a full meal right now without shopping."
 
+    history_data = {
+        "total_available": len(user_ingredients),
+        "total_suggested": len(suggestions),
+        "best_match": round(best_match, 1),
+        "avg_match": round(avg_match, 1),
+        "most_common_missing": most_common_missing.capitalize(),
+        "recommendation": recommendation,
+        "missing_table_data": missing_table_data
+    }
+
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history_data, f)
+
     filename_missing = "summary_missing.png"
     filename_difficulty = "summary_difficulty.png"
-
-    path_missing = BASE_DIR / "static" / filename_missing
-    path_difficulty = BASE_DIR / "static" / filename_difficulty
-
-    generate_summary_graphs(missing_counter, suggestions, path_missing, path_difficulty)
-
-    return render_template(
-        "summary.html",
-        empty=False,
-        total_available=total_available,
-        total_suggested=total_suggested,
-        best_match=round(best_match, 1),
-        avg_match=round(avg_match, 1),
-        most_common_missing=most_common_missing.capitalize(),
-        recommendation=recommendation,
-        missing_table_data=missing_table_data,
-        graph_missing_url=url_for('static', filename=filename_missing),
-        graph_difficulty_url=url_for('static', filename=filename_difficulty)
+    
+    generate_summary_graphs(
+        missing_counter, 
+        suggestions, 
+        BASE_DIR / "static" / filename_missing, 
+        BASE_DIR / "static" / filename_difficulty
     )
 
 

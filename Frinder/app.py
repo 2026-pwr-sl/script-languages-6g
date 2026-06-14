@@ -5,13 +5,20 @@ from flask import Flask, Response, flash, redirect, render_template, request, ur
 from collections import Counter
 
 from charts import generate_summary_graphs
-from matching import match_recipes
+from matching import (
+    DIETARY_RESTRICTION_OPTIONS,
+    dietary_restriction_labels,
+    match_recipes,
+    normalize_dietary_restrictions,
+)
 from storage import (
     add_favourite_recipe,
     add_missing_to_shopping_list,
     add_user_ingredient,
     build_shopping_report,
     load_recipes,
+    read_dietary_restrictions,
+    read_excluded_ingredients,
     read_favourite_recipe_names,
     read_shopping_list,
     read_user_ingredients,
@@ -19,6 +26,8 @@ from storage import (
     remove_favourite_recipe,
     remove_from_shopping_list,
     remove_user_ingredient,
+    save_dietary_restrictions,
+    save_excluded_ingredients,
     save_user_ingredients,
 )
 from utils import parse_ingredients
@@ -57,6 +66,33 @@ def add_favourite_status(recipes, favourite_recipe_names):
     ]
 
 
+def get_active_preferences():
+    dietary_restrictions = normalize_dietary_restrictions(
+        read_dietary_restrictions()
+    )
+    excluded_ingredients = read_excluded_ingredients()
+
+    return dietary_restrictions, excluded_ingredients
+
+
+def build_preferences_context(dietary_restrictions=None, excluded_ingredients=None):
+    if dietary_restrictions is None or excluded_ingredients is None:
+        dietary_restrictions, excluded_ingredients = get_active_preferences()
+
+    return {
+        "dietary_restriction_options": DIETARY_RESTRICTION_OPTIONS,
+        "selected_dietary_restrictions": dietary_restrictions,
+        "active_dietary_restriction_labels": dietary_restriction_labels(
+            dietary_restrictions
+        ),
+        "excluded_ingredients": excluded_ingredients,
+        "excluded_ingredients_str": ", ".join(excluded_ingredients),
+        "has_active_preferences": bool(
+            dietary_restrictions or excluded_ingredients
+        ),
+    }
+
+
 def get_recipes_with_favourite_status():
     recipes_list = load_recipes()
     favourite_recipe_names = read_favourite_recipe_names()
@@ -64,11 +100,23 @@ def get_recipes_with_favourite_status():
     return add_favourite_status(recipes_list, favourite_recipe_names), favourite_recipe_names
 
 
-def get_recipe_suggestions(user_ingredients):
+def get_recipe_suggestions(
+    user_ingredients,
+    dietary_restrictions=None,
+    excluded_ingredients=None,
+):
+    if dietary_restrictions is None or excluded_ingredients is None:
+        dietary_restrictions, excluded_ingredients = get_active_preferences()
+
     recipes_list = load_recipes()
     favourite_recipe_names = read_favourite_recipe_names()
     suggestions = add_favourite_status(
-        match_recipes(user_ingredients, recipes_list),
+        match_recipes(
+            user_ingredients,
+            recipes_list,
+            dietary_restrictions=dietary_restrictions,
+            excluded_ingredients=excluded_ingredients,
+        ),
         favourite_recipe_names,
     )
 
@@ -92,7 +140,11 @@ def index():
 
     saved_items_str = ", ".join(saved_items)
 
-    return render_template("index.html", saved_items_str=saved_items_str)
+    return render_template(
+        "index.html",
+        saved_items_str=saved_items_str,
+        **build_preferences_context(),
+    )
 
 
 @app.route("/recipes", methods=["GET", "POST"])
@@ -110,33 +162,53 @@ def recipes():
         user_ingredients = parse_ingredients(
             f"{ingredients_text}\n{uploaded_ingredients_text}"
         )
+        dietary_restrictions = normalize_dietary_restrictions(
+            request.form.getlist("dietary_restrictions")
+        )
+        excluded_ingredients = parse_ingredients(
+            request.form.get("excluded_ingredients", "")
+        )
+
+        save_dietary_restrictions(dietary_restrictions)
+        save_excluded_ingredients(excluded_ingredients)
 
         if not user_ingredients:
             flash("Please enter or upload at least one ingredient.", "error")
             return redirect(url_for("index"))
 
         save_user_ingredients(user_ingredients)
-        suggestions, favourite_recipe_names = get_recipe_suggestions(user_ingredients)
+        suggestions, favourite_recipe_names = get_recipe_suggestions(
+            user_ingredients,
+            dietary_restrictions,
+            excluded_ingredients,
+        )
 
         return render_template(
             "recipes.html",
             user_ingredients=user_ingredients,
             suggestions=suggestions,
             favourite_recipe_names=favourite_recipe_names,
+            **build_preferences_context(dietary_restrictions, excluded_ingredients),
         )
 
     user_ingredients = read_user_ingredients()
     favourite_recipe_names = read_favourite_recipe_names()
+    dietary_restrictions, excluded_ingredients = get_active_preferences()
     suggestions = []
 
     if user_ingredients:
-        suggestions, favourite_recipe_names = get_recipe_suggestions(user_ingredients)
+        suggestions, favourite_recipe_names = get_recipe_suggestions(
+            user_ingredients,
+            dietary_restrictions,
+            excluded_ingredients,
+        )
 
     return render_template(
         "recipes.html",
         user_ingredients=user_ingredients,
         suggestions=suggestions,
         favourite_recipe_names=favourite_recipe_names,
+        **build_preferences_context(dietary_restrictions, excluded_ingredients),
     )
     
 
@@ -164,11 +236,21 @@ def all_recipes():
 def summary():
     recipes_list = load_recipes()
     user_ingredients = read_user_ingredients()
+    dietary_restrictions, excluded_ingredients = get_active_preferences()
 
     if not user_ingredients:
-        return render_template("summary.html", empty=True)
+        return render_template(
+            "summary.html",
+            empty=True,
+            **build_preferences_context(dietary_restrictions, excluded_ingredients),
+        )
 
-    suggestions = match_recipes(user_ingredients, recipes_list)
+    suggestions = match_recipes(
+        user_ingredients,
+        recipes_list,
+        dietary_restrictions=dietary_restrictions,
+        excluded_ingredients=excluded_ingredients,
+    )
 
     total_available = len(user_ingredients)
     total_suggested = len(suggestions)
@@ -185,8 +267,10 @@ def summary():
     most_common_missing = missing_counter.most_common(1)[0][0] if missing_counter else "None"
     missing_table_data = missing_counter.most_common(10)
 
-    if best_match == 0:
-        recommendation = "Your fridge is empty."
+    if not suggestions:
+        recommendation = "No recipes match your current dietary filters."
+    elif best_match == 0:
+        recommendation = "No recipe uses your current ingredients yet."
     elif best_match < 20:
         recommendation = "You should go shopping."
     elif best_match < 60:
@@ -213,7 +297,8 @@ def summary():
         recommendation=recommendation,
         missing_table_data=missing_table_data,
         graph_missing_url=url_for('static', filename=filename_missing),
-        graph_difficulty_url=url_for('static', filename=filename_difficulty)
+        graph_difficulty_url=url_for('static', filename=filename_difficulty),
+        **build_preferences_context(dietary_restrictions, excluded_ingredients),
     )
 
 
@@ -265,8 +350,7 @@ def get_latest_recipe_matches():
     if not user_ingredients:
         return []
 
-    recipes_list = load_recipes()
-    suggestions = match_recipes(user_ingredients, recipes_list)
+    suggestions, _ = get_recipe_suggestions(user_ingredients)
 
     return [
         recipe

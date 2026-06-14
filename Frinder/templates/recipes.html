@@ -22,6 +22,26 @@
     </div>
 </section>
 
+<section class="active-preferences-box">
+    <h2>Dietary Preferences</h2>
+
+    {% if has_active_preferences %}
+        <div class="preference-chip-list">
+            {% for label in active_dietary_restriction_labels %}
+                <span class="preference-chip">{{ label }}</span>
+            {% endfor %}
+
+            {% for ingredient in excluded_ingredients %}
+                <span class="preference-chip preference-chip--excluded">
+                    No {{ ingredient }}
+                </span>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No dietary restrictions or excluded ingredients selected.</p>
+    {% endif %}
+</section>
+
 <section class="recipes-scroll">
   <div class="recipes-grid">
     {% for recipe in suggestions if recipe.match_score > 0 %}
@@ -93,7 +113,7 @@
       </article>
     {% else %}
       <p class="recipes-empty-message">
-        No matching recipes yet. Add more ingredients and try again.
+        No matching recipes for your current ingredients and preferences.
       </p>
     {% endfor %}
   </div>

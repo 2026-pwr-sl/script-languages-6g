@@ -1,0 +1,57 @@
+<section class="recipe-filter-panel">
+  <form method="GET" action="{{ url_for(recipe_filter_endpoint) }}" class="recipe-filter-form">
+    <label class="recipe-filter-field">
+      <span>Search</span>
+      <input
+        type="search"
+        name="q"
+        value="{{ recipe_filters.q }}"
+        placeholder="name, ingredient, difficulty"
+      >
+    </label>
+
+    <label class="recipe-filter-field">
+      <span>Difficulty</span>
+      <select name="difficulty">
+        <option value="">Any</option>
+        {% for difficulty in difficulty_filter_options %}
+          <option
+            value="{{ difficulty }}"
+            {% if recipe_filters.difficulty == difficulty %}selected{% endif %}
+          >
+            {{ difficulty }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="recipe-filter-field">
+      <span>Max time</span>
+      <select name="max_time">
+        <option value="">Any</option>
+        {% for max_time in max_time_filter_options %}
+          <option
+            value="{{ max_time }}"
+            {% if recipe_filters.max_time == max_time|string %}selected{% endif %}
+          >
+            {{ max_time }} min
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <div class="recipe-filter-actions">
+      <button type="submit" class="recipe-filter-button">Apply</button>
+
+      {% if has_active_recipe_filters %}
+        <a href="{{ url_for(recipe_filter_endpoint) }}" class="recipe-filter-reset">
+          Reset
+        </a>
+      {% endif %}
+    </div>
+  </form>
+
+  <p class="recipe-filter-count">
+    Showing {{ filtered_recipe_count }} of {{ total_recipe_count }} recipes
+  </p>
+</section>

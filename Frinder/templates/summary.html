@@ -17,6 +17,29 @@
   </div>
 </section>
 
+<section class="summary-preferences summary-panel">
+  <div>
+    <p class="summary-kicker">Dietary Preferences</p>
+    <h2>Active Filters</h2>
+  </div>
+
+  {% if has_active_preferences %}
+    <div class="preference-chip-list">
+      {% for label in active_dietary_restriction_labels %}
+        <span class="preference-chip">{{ label }}</span>
+      {% endfor %}
+
+      {% for ingredient in excluded_ingredients %}
+        <span class="preference-chip preference-chip--excluded">
+          No {{ ingredient }}
+        </span>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="summary-empty-message">No dietary restrictions or excluded ingredients selected.</p>
+  {% endif %}
+</section>
+
 {% if empty %}
   <section class="summary-empty recipe-card">
     <h2>No ingredients found</h2>

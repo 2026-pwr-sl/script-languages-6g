@@ -104,6 +104,36 @@
 
   <form action="{{ url_for('recipes') }}" method="POST" enctype="multipart/form-data">
     <textarea name="ingredients" class="homepage-textarea" placeholder="eggs, milk, flour">{{ saved_items_str }}</textarea>
+
+    <section class="preferences-panel">
+      <div>
+        <h2>Dietary Preferences</h2>
+        <p>Recipes matching these restrictions or excluded ingredients will be hidden.</p>
+      </div>
+
+      <div class="dietary-options">
+        {% for option in dietary_restriction_options %}
+          <label class="dietary-option">
+            <input
+              type="checkbox"
+              name="dietary_restrictions"
+              value="{{ option.value }}"
+              {% if option.value in selected_dietary_restrictions %}checked{% endif %}
+            >
+            <span>{{ option.label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <label class="excluded-ingredients-field" for="excluded-ingredients">
+        <span>Excluded ingredients</span>
+        <textarea
+          id="excluded-ingredients"
+          name="excluded_ingredients"
+          placeholder="ham, milk, flour"
+        >{{ excluded_ingredients_str }}</textarea>
+      </label>
+    </section>
     
     <div class="homepage-actions">
       <div class="file-upload-section">

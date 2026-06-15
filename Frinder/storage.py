@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import selectinload
 
@@ -13,6 +16,11 @@ from db_models import (
 from models import Recipe
 from seed import get_or_create_ingredient
 from utils import clean_ingredient, recipe_key
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+DIETARY_RESTRICTIONS_FILE = DATA_DIR / "dietary_restrictions.json"
+EXCLUDED_INGREDIENTS_FILE = DATA_DIR / "excluded_ingredients.json"
 
 
 def _recipe_row_to_model(recipe_row):
@@ -43,6 +51,32 @@ def _unique_cleaned_items(items):
             seen.add(cleaned)
 
     return unique_items
+
+
+def _read_json_list(filepath, key):
+    path = Path(filepath)
+
+    if not path.exists():
+        return []
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+
+    values = data.get(key, [])
+    if not isinstance(values, list):
+        return []
+
+    return _unique_cleaned_items(values)
+
+
+def _write_json_list(filepath, key, items):
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    data = {key: _unique_cleaned_items(items)}
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def _read_user_ingredient_names(session):
@@ -147,6 +181,22 @@ def save_user_ingredients(ingredients):
         _replace_ingredient_rows(db_session, UserIngredientRow, ingredients)
 
     _run_write(action)
+
+
+def read_dietary_restrictions():
+    return _read_json_list(DIETARY_RESTRICTIONS_FILE, "restrictions")
+
+
+def save_dietary_restrictions(restrictions):
+    _write_json_list(DIETARY_RESTRICTIONS_FILE, "restrictions", restrictions)
+
+
+def read_excluded_ingredients():
+    return _read_json_list(EXCLUDED_INGREDIENTS_FILE, "ingredients")
+
+
+def save_excluded_ingredients(ingredients):
+    _write_json_list(EXCLUDED_INGREDIENTS_FILE, "ingredients", ingredients)
 
 
 def add_user_ingredient(ingredient):

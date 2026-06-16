@@ -1,23 +1,913 @@
 [
   {
-    "name": "Pancakes",
-    "ingredients": ["flour", "milk", "eggs", "sugar", "butter"],
-    "instructions": "Mix and cook on a pan.",
-    "cooking_time": 20,
-    "difficulty": "Easy"
-  },
-  {
-    "name": "Omelette",
-    "ingredients": ["eggs", "milk", "cheese"],
-    "instructions": "Beat eggs and cook with cheese.",
+    "name": "Oats with Berries",
+    "ingredients": [
+      "oats",
+      "milk",
+      "berries"
+    ],
+    "instructions": "Cook oats with milk or water, then top with berries.",
     "cooking_time": 10,
     "difficulty": "Easy"
   },
   {
-    "name": "Eggs Benedict",
-    "ingredients": ["eggs", "roll", "ham", "butter", "lemon juice"],
-    "instructions": "Toast the bread roll, cook the ham, poach the eggs, and top with hollandaise sauce",
+    "name": "Avocado Toast",
+    "ingredients": [
+      "bread",
+      "avocado"
+    ],
+    "instructions": "Toast the bread, mash the avocado, and spread it on top.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Scrambled Eggs",
+    "ingredients": [
+      "eggs",
+      "butter"
+    ],
+    "instructions": "Whisk the eggs and cook them gently in butter until soft.",
+    "cooking_time": 8,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Pancakes",
+    "ingredients": [
+      "flour",
+      "milk",
+      "eggs",
+      "butter"
+    ],
+    "instructions": "Mix the batter and cook pancakes on a hot pan until golden.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "French Toast",
+    "ingredients": [
+      "bread",
+      "eggs",
+      "milk",
+      "butter"
+    ],
+    "instructions": "Dip bread in egg and milk, then fry until golden.",
+    "cooking_time": 15,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Breakfast Burrito",
+    "ingredients": [
+      "tortilla",
+      "eggs",
+      "cheese",
+      "ham"
+    ],
+    "instructions": "Fill a tortilla with eggs, cheese, and ham, then roll it up.",
+    "cooking_time": 15,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Yogurt Parfait",
+    "ingredients": [
+      "yogurt",
+      "berries",
+      "granola"
+    ],
+    "instructions": "Layer yogurt, berries, and granola in a bowl or glass.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Smoothie Bowl",
+    "ingredients": [
+      "banana",
+      "berries",
+      "yogurt"
+    ],
+    "instructions": "Blend fruit with yogurt and serve with toppings in a bowl.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Banana Pancakes",
+    "ingredients": [
+      "banana",
+      "flour",
+      "milk",
+      "eggs"
+    ],
+    "instructions": "Mix banana into pancake batter and cook until golden.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Egg Muffins",
+    "ingredients": [
+      "eggs",
+      "cheese",
+      "milk",
+      "vegetables"
+    ],
+    "instructions": "Mix eggs with fillings, pour into muffin cups, and bake until set.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Breakfast Sandwich",
+    "ingredients": [
+      "bread",
+      "eggs",
+      "cheese",
+      "ham"
+    ],
+    "instructions": "Stack eggs, cheese, and ham between toasted bread.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Oatmeal with Fruit",
+    "ingredients": [
+      "oats",
+      "milk",
+      "fruit"
+    ],
+    "instructions": "Cook oats, then serve with fruit on top.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Waffles",
+    "ingredients": [
+      "flour",
+      "milk",
+      "eggs",
+      "butter"
+    ],
+    "instructions": "Mix the batter and cook it in a waffle iron until crisp.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "English Breakfast",
+    "ingredients": [
+      "eggs",
+      "sausages",
+      "bacon",
+      "beans",
+      "tomato",
+      "bread"
+    ],
+    "instructions": "Fry or grill the breakfast items and serve them together.",
+    "cooking_time": 25,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chia Pudding",
+    "ingredients": [
+      "chia seeds",
+      "milk",
+      "honey"
+    ],
+    "instructions": "Mix chia seeds with milk and chill until thick.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Bagel with Cream Cheese",
+    "ingredients": [
+      "bagel",
+      "cream cheese"
+    ],
+    "instructions": "Toast the bagel and spread it with cream cheese.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Granola Bowl",
+    "ingredients": [
+      "granola",
+      "yogurt",
+      "fruit"
+    ],
+    "instructions": "Serve granola with yogurt and fruit.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Breakfast Casserole",
+    "ingredients": [
+      "eggs",
+      "bread",
+      "cheese",
+      "sausage"
+    ],
+    "instructions": "Combine the ingredients in a dish and bake until golden.",
+    "cooking_time": 35,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Toast with Peanut Butter and Banana",
+    "ingredients": [
+      "bread",
+      "peanut butter",
+      "banana"
+    ],
+    "instructions": "Spread peanut butter on toast and add banana slices.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Hash Browns with Eggs",
+    "ingredients": [
+      "potato",
+      "eggs",
+      "butter"
+    ],
+    "instructions": "Fry shredded potatoes until crisp and serve with eggs.",
+    "cooking_time": 15,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Cinnamon Rolls",
+    "ingredients": [
+      "flour",
+      "butter",
+      "sugar",
+      "cinnamon"
+    ],
+    "instructions": "Roll the dough with cinnamon filling, bake, and glaze.",
+    "cooking_time": 45,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Chicken Caesar Wrap",
+    "ingredients": [
+      "tortilla",
+      "chicken",
+      "lettuce",
+      "caesar dressing",
+      "cheese"
+    ],
+    "instructions": "Fill a tortilla with chicken, lettuce, dressing, and cheese, then roll it up.",
+    "cooking_time": 15,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Turkey and Cheese Sandwich",
+    "ingredients": [
+      "bread",
+      "turkey",
+      "cheese",
+      "lettuce"
+    ],
+    "instructions": "Layer turkey and cheese between slices of bread.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Grilled Cheese",
+    "ingredients": [
+      "bread",
+      "cheese",
+      "butter"
+    ],
+    "instructions": "Grill buttered bread with cheese until melted and golden.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Tomato Soup",
+    "ingredients": [
+      "tomato",
+      "onion",
+      "broth",
+      "cream"
+    ],
+    "instructions": "Cook tomatoes with onion and broth, then blend until smooth.",
+    "cooking_time": 25,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chicken Salad Sandwich",
+    "ingredients": [
+      "bread",
+      "chicken",
+      "mayonnaise",
+      "lettuce"
+    ],
+    "instructions": "Mix chicken with mayonnaise and serve it on bread.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Tuna Salad Sandwich",
+    "ingredients": [
+      "bread",
+      "tuna",
+      "mayonnaise",
+      "onion"
+    ],
+    "instructions": "Mix tuna with mayonnaise and onion, then serve on bread.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "BLT Sandwich",
+    "ingredients": [
+      "bread",
+      "bacon",
+      "lettuce",
+      "tomato"
+    ],
+    "instructions": "Layer bacon, lettuce, and tomato on toasted bread.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Pasta Salad",
+    "ingredients": [
+      "pasta",
+      "tomato",
+      "cucumber",
+      "cheese"
+    ],
+    "instructions": "Cook pasta, cool it, and toss with vegetables and dressing.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chicken Quesadilla",
+    "ingredients": [
+      "tortilla",
+      "chicken",
+      "cheese"
+    ],
+    "instructions": "Fill a tortilla with chicken and cheese, then cook until crisp.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Veggie Wrap",
+    "ingredients": [
+      "tortilla",
+      "lettuce",
+      "tomato",
+      "cucumber",
+      "hummus"
+    ],
+    "instructions": "Fill a tortilla with vegetables and sauce, then roll it up.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Greek Salad",
+    "ingredients": [
+      "tomato",
+      "cucumber",
+      "onion",
+      "feta",
+      "olives"
+    ],
+    "instructions": "Combine the vegetables with feta and olives, then dress lightly.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Egg Salad Sandwich",
+    "ingredients": [
+      "bread",
+      "eggs",
+      "mayonnaise"
+    ],
+    "instructions": "Mash boiled eggs with mayonnaise and spread on bread.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Mac and Cheese",
+    "ingredients": [
+      "macaroni",
+      "cheese",
+      "milk",
+      "butter"
+    ],
+    "instructions": "Cook macaroni and stir it into a creamy cheese sauce.",
+    "cooking_time": 25,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Burrito Bowl",
+    "ingredients": [
+      "rice",
+      "beans",
+      "chicken",
+      "tomato"
+    ],
+    "instructions": "Layer rice, beans, meat, and toppings in a bowl.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chicken Rice Bowl",
+    "ingredients": [
+      "rice",
+      "chicken",
+      "vegetables",
+      "sauce"
+    ],
+    "instructions": "Serve chicken over rice with vegetables and sauce.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Ham and Cheese Sliders",
+    "ingredients": [
+      "roll",
+      "ham",
+      "cheese",
+      "butter"
+    ],
+    "instructions": "Fill small rolls with ham and cheese, then bake until warm.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Pita Pockets",
+    "ingredients": [
+      "pita",
+      "chicken",
+      "lettuce",
+      "sauce"
+    ],
+    "instructions": "Stuff pita bread with filling and sauce.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Caprese Sandwich",
+    "ingredients": [
+      "bread",
+      "tomato",
+      "mozzarella",
+      "basil"
+    ],
+    "instructions": "Layer tomato, mozzarella, and basil on bread.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chicken Noodle Soup",
+    "ingredients": [
+      "chicken",
+      "noodles",
+      "carrot",
+      "broth"
+    ],
+    "instructions": "Simmer chicken, noodles, and vegetables in broth until tender.",
+    "cooking_time": 30,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Loaded Baked Potato",
+    "ingredients": [
+      "potato",
+      "cheese",
+      "bacon",
+      "sour cream"
+    ],
+    "instructions": "Bake potatoes and top them with cheese, bacon, and sour cream.",
+    "cooking_time": 45,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Flatbread Pizza",
+    "ingredients": [
+      "flatbread",
+      "tomato sauce",
+      "cheese",
+      "toppings"
+    ],
+    "instructions": "Add sauce and toppings to flatbread, then bake until the cheese melts.",
+    "cooking_time": 15,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Hummus Veggie Plate",
+    "ingredients": [
+      "hummus",
+      "cucumber",
+      "carrot",
+      "bread"
+    ],
+    "instructions": "Serve hummus with sliced vegetables and bread or pita.",
+    "cooking_time": 5,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Sushi Bowl",
+    "ingredients": [
+      "rice",
+      "fish",
+      "cucumber",
+      "avocado"
+    ],
+    "instructions": "Place rice in a bowl and top with sushi-style ingredients.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Caesar Salad",
+    "ingredients": [
+      "lettuce",
+      "caesar dressing",
+      "croutons",
+      "parmesan"
+    ],
+    "instructions": "Toss lettuce with dressing, croutons, and parmesan.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chicken Pesto Pasta",
+    "ingredients": [
+      "pasta",
+      "chicken",
+      "pesto",
+      "parmesan"
+    ],
+    "instructions": "Cook pasta and toss it with chicken and pesto.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Meatball Sub",
+    "ingredients": [
+      "roll",
+      "meatballs",
+      "tomato sauce",
+      "cheese"
+    ],
+    "instructions": "Fill a roll with meatballs, sauce, and cheese, then bake until hot.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Fried Rice",
+    "ingredients": [
+      "rice",
+      "eggs",
+      "vegetables",
+      "soy sauce"
+    ],
+    "instructions": "Stir-fry cooked rice with vegetables, egg, and sauce.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Spaghetti Bolognese",
+    "ingredients": [
+      "spaghetti",
+      "beef",
+      "tomato sauce",
+      "onion"
+    ],
+    "instructions": "Cook spaghetti and serve it with a rich meat and tomato sauce.",
+    "cooking_time": 30,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Carbonara",
+    "ingredients": [
+      "pasta",
+      "eggs",
+      "bacon",
+      "parmesan"
+    ],
+    "instructions": "Toss hot pasta with eggs, cheese, and bacon until creamy.",
+    "cooking_time": 20,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Chicken Schnitzel",
+    "ingredients": [
+      "chicken",
+      "breadcrumbs",
+      "eggs",
+      "flour"
+    ],
+    "instructions": "Coat chicken in breadcrumbs and fry until golden.",
     "cooking_time": 25,
     "difficulty": "Medium"
+  },
+  {
+    "name": "Burritos",
+    "ingredients": [
+      "tortilla",
+      "rice",
+      "beans",
+      "meat",
+      "cheese"
+    ],
+    "instructions": "Fill tortillas with rice, beans, meat, and cheese, then roll them tightly.",
+    "cooking_time": 20,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Mushroom Risotto",
+    "ingredients": [
+      "rice",
+      "mushrooms",
+      "broth",
+      "parmesan"
+    ],
+    "instructions": "Slowly cook rice with broth and mushrooms until creamy.",
+    "cooking_time": 40,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Chicken Soup",
+    "ingredients": [
+      "chicken",
+      "carrot",
+      "celery",
+      "broth"
+    ],
+    "instructions": "Cook chicken with vegetables in broth until tender.",
+    "cooking_time": 35,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Mushroom Soup",
+    "ingredients": [
+      "mushrooms",
+      "onion",
+      "broth",
+      "cream"
+    ],
+    "instructions": "Cook mushrooms with onion and broth, then blend or leave chunky.",
+    "cooking_time": 30,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Potato Pancakes",
+    "ingredients": [
+      "potato",
+      "eggs",
+      "flour",
+      "onion"
+    ],
+    "instructions": "Grate potatoes, mix with egg and flour, then fry until crisp.",
+    "cooking_time": 25,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Beef Goulash",
+    "ingredients": [
+      "beef",
+      "onion",
+      "paprika",
+      "broth"
+    ],
+    "instructions": "Stew beef slowly with onions and paprika until tender.",
+    "cooking_time": 90,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Vegetable Stir-Fry",
+    "ingredients": [
+      "vegetables",
+      "soy sauce",
+      "garlic",
+      "rice"
+    ],
+    "instructions": "Quickly cook vegetables in a hot pan with sauce and serve with rice.",
+    "cooking_time": 20,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Lasagna",
+    "ingredients": [
+      "lasagna sheets",
+      "beef",
+      "tomato sauce",
+      "cheese"
+    ],
+    "instructions": "Layer pasta, meat sauce, and cheese, then bake until bubbling.",
+    "cooking_time": 75,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Hot Dogs",
+    "ingredients": [
+      "sausages",
+      "buns",
+      "mustard"
+    ],
+    "instructions": "Heat the sausages, place them in buns, and add your favorite toppings.",
+    "cooking_time": 10,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Vegetable Curry",
+    "ingredients": [
+      "vegetables",
+      "curry paste",
+      "coconut milk",
+      "rice"
+    ],
+    "instructions": "Simmer vegetables in spiced curry sauce and serve with rice.",
+    "cooking_time": 30,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Beef Stew",
+    "ingredients": [
+      "beef",
+      "potato",
+      "carrot",
+      "broth"
+    ],
+    "instructions": "Slow-cook beef with vegetables and broth until tender.",
+    "cooking_time": 120,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Fish and Chips",
+    "ingredients": [
+      "fish",
+      "potato",
+      "flour",
+      "eggs"
+    ],
+    "instructions": "Fry or bake fish, cook fries, and serve together.",
+    "cooking_time": 35,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Baked Trout",
+    "ingredients": [
+      "trout",
+      "lemon",
+      "herbs",
+      "butter"
+    ],
+    "instructions": "Season trout, bake it with herbs and lemon, and serve hot.",
+    "cooking_time": 25,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Dumplings with Meat",
+    "ingredients": [
+      "flour",
+      "meat",
+      "onion",
+      "eggs"
+    ],
+    "instructions": "Fill dumpling dough with seasoned meat, boil, and serve warm.",
+    "cooking_time": 60,
+    "difficulty": "Hard"
+  },
+  {
+    "name": "Dumplings with Cheese and Potatoes",
+    "ingredients": [
+      "flour",
+      "potato",
+      "cheese",
+      "eggs"
+    ],
+    "instructions": "Fill dumpling dough with mashed potatoes and cheese, then boil and serve.",
+    "cooking_time": 60,
+    "difficulty": "Hard"
+  },
+  {
+    "name": "Dumplings with Cabbage and Mushrooms",
+    "ingredients": [
+      "flour",
+      "cabbage",
+      "mushrooms",
+      "onion"
+    ],
+    "instructions": "Fill dumpling dough with cabbage and mushrooms, then boil until tender.",
+    "cooking_time": 70,
+    "difficulty": "Hard"
+  },
+  {
+    "name": "Quesadillas",
+    "ingredients": [
+      "tortilla",
+      "cheese",
+      "chicken"
+    ],
+    "instructions": "Fill tortillas with cheese and fillings, then cook until melted and crisp.",
+    "cooking_time": 15,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Fajitas",
+    "ingredients": [
+      "chicken",
+      "pepper",
+      "onion",
+      "tortilla"
+    ],
+    "instructions": "Cook the meat and vegetables with spices, then serve in tortillas.",
+    "cooking_time": 25,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Pumpkin Soup",
+    "ingredients": [
+      "pumpkin",
+      "onion",
+      "broth",
+      "cream"
+    ],
+    "instructions": "Cook pumpkin with broth and onion, then blend until smooth.",
+    "cooking_time": 35,
+    "difficulty": "Easy"
+  },
+  {
+    "name": "Chili con Carne",
+    "ingredients": [
+      "beef",
+      "beans",
+      "tomato",
+      "chili"
+    ],
+    "instructions": "Simmer beef, beans, tomatoes, and spices until thick and rich.",
+    "cooking_time": 60,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Ramen",
+    "ingredients": [
+      "noodles",
+      "broth",
+      "eggs",
+      "mushrooms"
+    ],
+    "instructions": "Cook noodles in broth and top with egg and vegetables.",
+    "cooking_time": 30,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Pad Thai",
+    "ingredients": [
+      "noodles",
+      "eggs",
+      "peanuts",
+      "soy sauce"
+    ],
+    "instructions": "Stir-fry noodles with egg, sauce, and peanuts.",
+    "cooking_time": 25,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Butter Chicken",
+    "ingredients": [
+      "chicken",
+      "butter",
+      "tomato",
+      "cream"
+    ],
+    "instructions": "Cook chicken in a creamy tomato sauce and serve with rice or naan.",
+    "cooking_time": 45,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Biryani",
+    "ingredients": [
+      "rice",
+      "chicken",
+      "spices",
+      "onion"
+    ],
+    "instructions": "Layer spiced rice with meat or vegetables and cook until fragrant.",
+    "cooking_time": 60,
+    "difficulty": "Hard"
+  },
+  {
+    "name": "Kung Pao Chicken",
+    "ingredients": [
+      "chicken",
+      "peppers",
+      "peanuts",
+      "soy sauce"
+    ],
+    "instructions": "Stir-fry chicken with peppers, peanuts, and spicy sauce.",
+    "cooking_time": 25,
+    "difficulty": "Medium"
+  },
+  {
+    "name": "Teriyaki Chicken",
+    "ingredients": [
+      "chicken",
+      "teriyaki sauce",
+      "rice",
+      "vegetables"
+    ],
+    "instructions": "Cook chicken in teriyaki sauce and serve with rice and vegetables.",
+    "cooking_time": 25,
+    "difficulty": "Easy"
   }
 ]

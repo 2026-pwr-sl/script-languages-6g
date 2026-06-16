@@ -253,7 +253,9 @@ button {
 .favourites-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  column-gap: 30px;
+  row-gap: 52px;
+  align-items: start;
 }
 
 .recipe-card {
@@ -263,7 +265,8 @@ button {
   min-height: 100%;
   gap: 14px;
   margin-top: 0;
-  padding: 22px;
+  margin-bottom: 12px;
+  padding: 24px;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
@@ -402,7 +405,7 @@ button {
 
 .recipe-card__actions {
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: 30px;
 }
 
 .recipe-card__actions form {
@@ -602,11 +605,15 @@ button {
 .shopping-recipe-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: start;
 }
 
 .shopping-recipe {
   border-top: 5px solid #1f4f46;
+  padding: 18px;
+  box-sizing: border-box;
 }
 
 .shopping-recipe .recipe-card__actions {
@@ -616,6 +623,18 @@ button {
 
 .shopping-recipe .shopping-button {
   width: 100%;
+}
+
+.shopping-recipe .recipe-card__section {
+  margin-bottom: 8px;
+}
+
+.shopping-recipe .recipe-card__list {
+  margin-top: 6px;
+}
+
+.shopping-recipe .recipe-card__title {
+  margin-bottom: 6px;
 }
 
 .homepage-header {

@@ -484,8 +484,7 @@
     "ingredients": [
       "flatbread",
       "tomato sauce",
-      "cheese",
-      "toppings"
+      "cheese"
     ],
     "instructions": "Add sauce and toppings to flatbread, then bake until the cheese melts.",
     "cooking_time": 15,
@@ -806,7 +805,6 @@
     "name": "Fajitas",
     "ingredients": [
       "chicken",
-      "pepper",
       "onion",
       "tortilla"
     ],
@@ -879,7 +877,6 @@
     "ingredients": [
       "rice",
       "chicken",
-      "spices",
       "onion"
     ],
     "instructions": "Layer spiced rice with meat or vegetables and cook until fragrant.",
